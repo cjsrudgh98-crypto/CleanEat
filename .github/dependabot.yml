@@ -18,6 +18,13 @@ updates:
       # Debian 안정판에 아직 없는 Leptonica 1.85~1.87을 요구해서 OCR이 깨진다 (DEPLOYMENT.md 3번).
       # 올릴 때는 backend/Dockerfile의 실행 이미지와 CI 컨테이너도 같이 바꿔야 한다.
       - dependency-name: net.sourceforge.tess4j:tess4j
+      # 메이저 업그레이드는 코드 마이그레이션이 필요해서 자동 PR을 받지 않는다 (올릴 때 사람이 따로 작업)
+      # - Spring Boot 4: 3.5 -> 4.x에서 백엔드 테스트가 깨짐 (Dependabot PR #4)
+      # - OpenPDF 3: API가 바뀌어 PDF 리포트 코드 수정 필요 (Dependabot PR #6)
+      - dependency-name: org.springframework.boot:spring-boot-starter-parent
+        update-types: [version-update:semver-major]
+      - dependency-name: com.github.librepdf:openpdf
+        update-types: [version-update:semver-major]
 
   # 프론트 (React, Vite ...)
   - package-ecosystem: npm
@@ -53,4 +60,10 @@ updates:
     ignore:
       # 실행 이미지의 Debian 판을 바꾸면 OCR 라이브러리 버전이 바뀐다 - tess4j와 같이 사람이 확인하고 올릴 것
       - dependency-name: debian
+        update-types: [version-update:semver-major]
+      # 프로젝트는 Java 21 기준 (pom.xml java.version, CI도 21) - JDK 메이저는 코드/CI와 같이 올린다.
+      # 빌드 이미지 maven:3.9-eclipse-temurin-21은 JDK 버전이 태그 뒤쪽에 붙어 있어서 semver-major로 안 걸린다
+      # (PR #1이 -21 -> -26으로 올라옴). 태그가 이미 3.9.x 최신을 따라가므로 이 이미지는 통째로 제외한다.
+      - dependency-name: maven
+      - dependency-name: eclipse-temurin
         update-types: [version-update:semver-major]
