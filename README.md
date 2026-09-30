@@ -16,16 +16,24 @@
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
 
+<br />
+
+<a href="https://github.com/cjsrudgh98-crypto/CleanEat/raw/main/docs/portfolio/CleanEat-portfolio.pdf"><img src="https://img.shields.io/badge/📄_포트폴리오_PDF-다운로드-16a36a?style=for-the-badge" alt="포트폴리오 PDF 다운로드" /></a>
+<a href="docs/demo/CleanEat-demo.mp4"><img src="https://img.shields.io/badge/▶_시연_영상-1분_16초-111827?style=for-the-badge" alt="시연 영상 보기" /></a>
+
 </div>
 
 <p align="center">
-  <img src="docs/screenshots/desktop-home.png" width="860" alt="성분 검사 화면 - 스캔 결과와 알레르기 경고, 대안 제품 추천" />
+  <img src="docs/demo/CleanEat-demo.gif" width="860" alt="CleanEat 시연 - 바코드 스캔, 알레르기 경고, 대안 추천, 쇼핑, 부분 취소, 반품, 관리자 매출 통계" />
+  <br />
+  <sub>▲ 실제 서비스 화면 시연 (1.6배속) · 원본 영상: <a href="docs/demo/CleanEat-demo.mp4">CleanEat-demo.mp4</a></sub>
 </p>
 
 ---
 
 ## 목차
 
+- [시연 영상 · 포트폴리오](#-시연-영상--포트폴리오)
 - [프로젝트 소개](#-프로젝트-소개)
 - [주요 기능](#-주요-기능)
 - [화면](#-화면)
@@ -36,6 +44,36 @@
 - [실행 방법](#-실행-방법)
 - [프로젝트 구조](#-프로젝트-구조)
 - [문서](#-문서)
+
+---
+
+## 🎬 시연 영상 · 포트폴리오
+
+| | |
+|---|---|
+| ▶ **시연 영상** | [CleanEat-demo.mp4](docs/demo/CleanEat-demo.mp4) (1분 16초, 1280×720). 자막으로 단계를 안내하므로 소리 없이 볼 수 있습니다. |
+| 📄 **포트폴리오 PDF** | [CleanEat-portfolio.pdf](https://github.com/cjsrudgh98-crypto/CleanEat/raw/main/docs/portfolio/CleanEat-portfolio.pdf) (A4 8쪽): 개요 · 화면 · 시스템 구조 · 기술적 도전과 해결 8가지 · 테스트/CI |
+
+**영상 순서**
+
+1. 바코드로 식품 성분 검사
+2. 내가 등록한 알레르기 성분(밀)을 바로 경고
+3. 위험도가 낮고 내 식단에 맞는 대안 제품 추천 → 장바구니 담기
+4. 알레르기 상품을 숨기고, 내 식단 상품을 먼저 보여주는 쇼핑몰
+5. 상품 상세 → 장바구니
+6. 토스페이먼츠 결제 화면 (카드 · 가상계좌)
+7. 주문 내역 · 상품 단위 부분 취소 (해당 금액만 환불)
+8. 배송 완료 주문 반품 신청
+9. 관리자 대시보드 · 반품 처리 목록
+10. 매출 통계 (일별/월별 차트, 많이 팔린 상품)
+
+<details>
+<summary>영상과 PDF는 코드로 다시 만들 수 있습니다</summary>
+
+- 영상: [`demo.mjs`](backend/.claude/skills/run-cleaneat/demo.mjs)가 실제 서버를 브라우저로 조작하며 화면을 녹화합니다(Playwright + CDP screencast). 이후 ffmpeg로 MP4와 GIF를 만듭니다.
+- PDF: [`portfolio.html`](docs/portfolio/portfolio.html)을 [`build-pdf.mjs`](docs/portfolio/build-pdf.mjs)가 A4로 인쇄합니다.
+
+</details>
 
 ---
 
@@ -348,7 +386,10 @@ CleanEat
 │       ├── components/              # 주문 액션 폼, 매출 차트, 재입고 알림 ...
 │       ├── api/  auth/  lib/  layout/  styles/
 │       └── test/
-├── docs/screenshots/
+├── docs/
+│   ├── demo/                        # 시연 영상 (MP4 · GIF)
+│   ├── portfolio/                   # 포트폴리오 PDF와 원본 HTML
+│   └── screenshots/
 └── .github/                         # CI 워크플로, Dependabot
 ```
 

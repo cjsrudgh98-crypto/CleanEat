@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>CleanEat 포트폴리오</title>
+<!-- PDF 원본. docs/portfolio/build-pdf.mjs 로 CleanEat-portfolio.pdf를 만든다 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --green: #16a36a; --green-dark: #0f3d2e; --green-soft: #e8f6ef; --ink: #111827; --ink-2: #4b5563; --ink-3: #6b7280;
+    --line: #e5e7eb; --orange: #f97316; --red: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--ink); font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 210mm; height: 297mm; padding: 18mm 17mm 16mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  .foot { position: absolute; left: 17mm; right: 17mm; bottom: 9mm; display: flex; justify-content: space-between;
+    font-size: 8.5pt; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 3mm; }
+  h2.sec { font-size: 20pt; margin: 0 0 1.5mm; letter-spacing: -0.5px; }
+  h2.sec small { display: block; font-size: 9pt; color: var(--green); font-weight: 700; letter-spacing: 2px; margin-bottom: 1mm; }
+  .lead { color: var(--ink-2); font-size: 10.5pt; line-height: 1.7; margin: 0 0 6mm; }
+  h3 { font-size: 12.5pt; margin: 0 0 2mm; }
+  p, li { font-size: 9.8pt; line-height: 1.65; }
+  ul { margin: 0; padding-left: 4.5mm; }
+  .chip { display: inline-block; padding: 1mm 3mm; border-radius: 99px; background: var(--green-soft); color: var(--green-dark);
+    font-size: 8.8pt; font-weight: 500; margin: 0 1.2mm 1.5mm 0; }
+
+  /* 표지 */
+  .cover { padding: 0; background: linear-gradient(150deg, #0f3d2e 0%, #13784f 55%, #16a36a 100%); color: #fff; }
+  .cover .inner { padding: 26mm 20mm 0; }
+  .cover .logo { display: flex; align-items: center; gap: 4mm; font-size: 13pt; font-weight: 700; opacity: .95; }
+  .cover .logo img { width: 12mm; height: 12mm; border-radius: 3mm; background: #fff; padding: 1.5mm; }
+  .cover h1 { font-size: 52pt; margin: 16mm 0 3mm; letter-spacing: -2px; font-weight: 900; }
+  .cover .tag { font-size: 16pt; font-weight: 500; line-height: 1.5; margin: 0 0 9mm; }
+  .cover .meta { display: grid; grid-template-columns: 28mm 1fr; row-gap: 2.2mm; font-size: 10.5pt; max-width: 150mm; }
+  .cover .meta dt { opacity: .7; } .cover .meta dd { margin: 0; font-weight: 500; }
+  .cover .shot { position: absolute; left: 20mm; right: 20mm; bottom: 18mm; border-radius: 4mm; overflow: hidden;
+    box-shadow: 0 10mm 25mm rgba(0,0,0,.35); border: 1.5mm solid rgba(255,255,255,.15); }
+  .cover .shot img { display: block; width: 100%; }
+  .cover .chips { margin-top: 7mm; } .cover .chip { background: rgba(255,255,255,.14); color: #fff; }
+
+  /* 개요 */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 0 0 7mm; }
+  .stat { background: var(--green-soft); border-radius: 3mm; padding: 4mm; }
+  .stat b { display: block; font-size: 20pt; color: var(--green-dark); letter-spacing: -0.5px; }
+  .stat span { font-size: 8.8pt; color: var(--ink-2); }
+  .flow { display: grid; grid-template-columns: 1fr 6mm 1fr 6mm 1fr; align-items: stretch; margin: 0 0 7mm; }
+  .flow .step { border: 1px solid var(--line); border-radius: 3mm; padding: 4mm; }
+  .flow .step em { font-style: normal; font-size: 8.5pt; font-weight: 700; color: var(--green); letter-spacing: 1px; }
+  .flow .step h4 { margin: 1mm 0 1.5mm; font-size: 11.5pt; }
+  .flow .step p { margin: 0; font-size: 9pt; color: var(--ink-2); line-height: 1.55; }
+  .flow .arrow { display: flex; align-items: center; justify-content: center; color: var(--green); font-weight: 700; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .box { border: 1px solid var(--line); border-radius: 3mm; padding: 4.5mm 5mm; }
+  .box h3 { display: flex; align-items: center; gap: 2mm; }
+  .box h3 i { font-style: normal; font-size: 13pt; }
+
+  /* 화면 */
+  .shots { display: grid; gap: 5mm; }
+  .shots.three { grid-template-columns: repeat(3, 1fr); }
+  .shots.two { grid-template-columns: repeat(2, 1fr); }
+  .shot-card figure { margin: 0; }
+  .shot-card img { width: 100%; display: block; border-radius: 3mm; border: 1px solid var(--line); box-shadow: 0 2mm 6mm rgba(0,0,0,.06); }
+  .shot-card figcaption { margin-top: 2.5mm; }
+  .shot-card figcaption b { display: block; font-size: 10.5pt; margin-bottom: .8mm; }
+  .shot-card figcaption span { font-size: 8.8pt; color: var(--ink-2); line-height: 1.55; display: block; }
+  .crop { height: 100mm; overflow: hidden; border-radius: 3mm; border: 1px solid var(--line); }
+  .crop img { border: 0; border-radius: 0; box-shadow: none; }
+
+  /* 아키텍처 */
+  .arch { display: grid; grid-template-columns: 38mm 1fr 42mm; gap: 4mm; align-items: stretch; margin-bottom: 6mm; }
+  .tier { border-radius: 3mm; padding: 4mm; }
+  .tier h4 { margin: 0 0 2.5mm; font-size: 10.5pt; }
+  .tier .node { background: #fff; border: 1px solid var(--line); border-radius: 2mm; padding: 2mm 2.5mm; font-size: 8.8pt; margin-bottom: 2mm; line-height: 1.45; }
+  .tier .node b { display: block; font-size: 9.3pt; }
+  .tier.client { background: #eef2ff; } .tier.server { background: var(--green-soft); } .tier.ext { background: #fff7ed; }
+  .server-layers { display: grid; grid-template-columns: 1fr; gap: 2mm; }
+  .server-layers .node { margin: 0; }
+  .server-layers .node.row { display: flex; gap: 2mm; flex-wrap: wrap; }
+  .states { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm; font-size: 8.8pt; }
+  .states .s { padding: 1.2mm 2.5mm; border-radius: 2mm; background: #f3f4f6; font-weight: 500; }
+  .states .s.ok { background: var(--green-soft); color: var(--green-dark); }
+  .states .s.warn { background: #fff7ed; color: #9a3412; }
+  .states .s.bad { background: #fef2f2; color: #991b1b; }
+  .states .a { color: var(--ink-3); }
+
+  /* 문제 해결 */
+  .case { border: 1px solid var(--line); border-radius: 3mm; padding: 4.5mm 5mm; margin-bottom: 4mm; break-inside: avoid; }
+  .case h3 { display: flex; gap: 2.5mm; align-items: baseline; }
+  .case h3 .n { color: var(--green); font-weight: 900; font-size: 13pt; }
+  .case .psr { display: grid; grid-template-columns: 15mm 1fr; row-gap: 1.3mm; column-gap: 3mm; }
+  .case .psr dt { font-size: 8.5pt; font-weight: 700; padding: .8mm 0; text-align: center; border-radius: 1.5mm; height: fit-content; }
+  .case .psr dt.p { background: #fef2f2; color: #991b1b; }
+  .case .psr dt.s { background: var(--green-soft); color: var(--green-dark); }
+  .case .psr dt.r { background: #eef2ff; color: #3730a3; }
+  .case .psr dd { margin: 0; font-size: 9.3pt; line-height: 1.6; }
+  code { font-family: 'Consolas', monospace; font-size: 8.6pt; background: #f3f4f6; padding: .2mm 1.2mm; border-radius: 1mm; }
+
+  table.t { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  table.t th, table.t td { text-align: left; padding: 2.2mm 2.5mm; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.55; }
+  table.t th { width: 30mm; color: var(--ink-2); font-weight: 700; background: #f9fafb; }
+  .qr { display: flex; gap: 5mm; align-items: center; background: var(--green-soft); border-radius: 3mm; padding: 5mm; margin-top: 6mm; }
+  .qr b { font-size: 11pt; } .qr p { margin: 1mm 0 0; }
+</style>
+</head>
+<body>
+
+<!-- 1. 표지 -->
+<section class="page cover">
+  <div class="inner">
+    <div class="logo"><img src="../../frontend/public/favicon.svg" alt="" />CleanEat</div>
+    <h1>CleanEat</h1>
+    <p class="tag">바코드·성분표 사진 한 장으로 유해성분과 알레르기를 확인하고,<br />안심하고 먹을 수 있는 식품을 바로 구매하는 서비스</p>
+    <dl class="meta">
+      <dt>구분</dt><dd>개인 프로젝트 · 풀스택 (기획 · 백엔드 · 프론트엔드 · 배포)</dd>
+      <dt>Backend</dt><dd>Java 21 · Spring Boot 3.5 · Spring Security · JPA · Flyway</dd>
+      <dt>Frontend</dt><dd>React 19 · TypeScript · Vite</dd>
+      <dt>Infra</dt><dd>Docker · GitHub Actions · PostgreSQL / MySQL</dd>
+      <dt>GitHub</dt><dd>github.com/cjsrudgh98-crypto/CleanEat</dd>
+    </dl>
+  </div>
+  <div class="shot"><img src="../screenshots/desktop-home.png" alt="" /></div>
+</section>
+
+<!-- 2. 개요 -->
+<section class="page">
+  <h2 class="sec"><small>OVERVIEW</small>프로젝트 개요</h2>
+  <p class="lead">
+    식품 뒷면의 성분표는 길고 어렵습니다. 알레르기가 있거나 비건·글루텐프리 같은 식단을 지키는 사람은 제품을 살 때마다 성분을 하나하나 확인해야 합니다.
+    CleanEat은 <b>성분 분석</b>과 <b>쇼핑몰</b>을 하나로 합쳐 “확인하고 → 대안을 찾고 → 바로 사는” 흐름을 한 곳에서 끝냅니다.
+    결제·취소·반품·재고·매출 통계까지 실제 운영을 전제로 만들었습니다.
+  </p>
+
+  <div class="stats">
+    <div class="stat"><b>74</b><span>REST API 엔드포인트</span></div>
+    <div class="stat"><b>20</b><span>JPA 엔티티</span></div>
+    <div class="stat"><b>335</b><span>자동 테스트 (백 283 · 프론트 52)</span></div>
+    <div class="stat"><b>3종</b><span>DB 지원 (H2 · MySQL · PostgreSQL)</span></div>
+  </div>
+
+  <div class="flow">
+    <div class="step"><em>01 SCAN</em><h4>스캔</h4><p>바코드 촬영·입력, 성분표 사진이나 영수증 업로드 (Tesseract OCR)</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><em>02 ANALYZE</em><h4>분석</h4><p>유해성분 사전 + 내 알레르기·식단 기준으로 위험도(안전/주의/위험) 판정</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><em>03 BUY</em><h4>대안 · 구매</h4><p>더 안전한 대안 추천 → 장바구니 → 토스페이먼츠 결제 → 배송·취소·반품</p></div>
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <h3><i>🔍</i>성분 분석</h3>
+      <ul>
+        <li>바코드 조회: 자체 DB에 없으면 Open Food Facts에서 가져옴</li>
+        <li>성분표·영수증 OCR (tess4j)</li>
+        <li>내 알레르기 성분 강조 경고, 대안 제품 추천</li>
+        <li>스캔 결과 한글 PDF 리포트, 기간별 식습관 통계</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3><i>🛒</i>쇼핑몰</h3>
+      <ul>
+        <li>알레르기 상품 숨김·내 식단 표시 맞춤 상품 목록</li>
+        <li>장바구니·찜·리뷰 (구매자만), 재입고 알림 메일</li>
+        <li>토스페이먼츠 카드·가상계좌 결제, 웹훅 입금 확인</li>
+        <li>전체·<b>상품 단위 부분 취소</b>, 반품 신청→승인/거절</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3><i>🛠</i>관리자</h3>
+      <ul>
+        <li>대시보드: 배송 준비·입금 대기·반품·재고 부족·오늘 매출</li>
+        <li>주문 상태 관리, 송장 등록, 관리자 취소·반품 처리</li>
+        <li>상품·재고·유해성분 사전 관리</li>
+        <li>7일/30일/12개월 매출 차트와 판매 순위</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3><i>🔐</i>회원 · 보안</h3>
+      <ul>
+        <li>JWT 인증 + Google·Kakao·Naver 소셜 로그인</li>
+        <li>이메일 인증번호 가입, 비밀번호 찾기</li>
+        <li>비밀번호 변경 시 기존 토큰 즉시 무효화</li>
+        <li>로그인·인증번호 요청 Rate Limit</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>2</span></div>
+</section>
+
+<!-- 3. 화면 (사용자) -->
+<section class="page">
+  <h2 class="sec"><small>SCREENS</small>주요 화면 · 사용자</h2>
+  <p class="lead">모바일에서는 하단 탭바, 데스크톱에서는 상단 내비게이션을 쓰는 반응형 SPA입니다.</p>
+  <div class="shots three shot-card">
+    <figure><div class="crop"><img src="../screenshots/scan-result.png" alt="" /></div>
+      <figcaption><b>성분 검사 결과</b><span>통밀 크래커를 스캔하면 내가 등록한 알레르기 성분(밀)을 바로 경고하고, 대안 제품을 추천합니다.</span></figcaption></figure>
+    <figure><div class="crop"><img src="../screenshots/products.png" alt="" /></div>
+      <figcaption><b>맞춤 상품 목록</b><span>알레르기 상품을 숨기고, 내 식단(베지테리언)에 맞는 상품에 “내 식단” 표시를 붙입니다.</span></figcaption></figure>
+    <figure><div class="crop"><img src="../screenshots/product-detail.png" alt="" /></div>
+      <figcaption><b>상품 상세</b><span>알레르기 성분, 맞는 식단, 재고를 보여주고 장바구니 담기·바로 구매로 이어집니다.</span></figcaption></figure>
+  </div>
+  <div class="shots three shot-card" style="margin-top:7mm">
+    <figure><div class="crop" style="height:72mm"><img src="../screenshots/partial-cancel.png" alt="" /></div>
+      <figcaption><b>상품 단위 부분 취소</b><span>여러 상품 중 하나만 취소하고 그 금액만 환불, 나머지는 그대로 배송합니다.</span></figcaption></figure>
+    <figure><div class="crop" style="height:72mm"><img src="../screenshots/return-form.png" alt="" /></div>
+      <figcaption><b>반품 신청</b><span>배송 완료 후 기한 안에 사유를 입력해 신청하고, 처리 전에는 철회할 수 있습니다.</span></figcaption></figure>
+    <div class="box" style="align-self:start">
+      <h3>주문 상태 흐름</h3>
+      <div class="states" style="margin-top:2mm">
+        <span class="s">결제 대기</span><span class="a">→</span><span class="s ok">결제 완료</span><span class="a">→</span>
+        <span class="s ok">배송 준비</span><span class="a">→</span><span class="s ok">배송중</span><span class="a">→</span><span class="s ok">배송 완료</span>
+        <span class="a">→</span><span class="s warn">반품 신청</span><span class="a">→</span><span class="s bad">반품 완료</span>
+      </div>
+      <p style="margin:3mm 0 0;color:var(--ink-2);font-size:8.8pt">가상계좌는 “입금 대기”를 거쳐 웹훅으로 결제 완료. 결제 완료·배송 준비 단계에서는 전체/부분 취소가 가능합니다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>3</span></div>
+</section>
+
+<!-- 4. 화면 (관리자) + 시연 -->
+<section class="page">
+  <h2 class="sec"><small>SCREENS</small>주요 화면 · 관리자</h2>
+  <p class="lead">운영자가 처리해야 할 일을 먼저 보여주는 대시보드와, 실제 결제 금액 기준의 매출 통계를 제공합니다.</p>
+  <div class="shots two shot-card">
+    <figure><div class="crop" style="height:150mm"><img src="../screenshots/admin-dashboard.png" alt="" /></div>
+      <figcaption><b>관리자 대시보드 · 반품 처리</b><span>배송 준비 필요, 입금 대기, 반품 신청, 재고 5개 이하, 품절, 오늘 매출을 타일로 보여주고 상태별 주문 목록에서 바로 처리합니다.</span></figcaption></figure>
+    <figure><div class="crop" style="height:150mm"><img src="../screenshots/admin-sales.png" alt="" /></div>
+      <figcaption><b>매출 통계</b><span>기간별 매출·주문 수·객단가, 일별/월별 막대 차트(툴팁·표 보기), 많이 팔린 상품. 부분 취소 금액과 취소·반품 주문은 제외합니다.</span></figcaption></figure>
+  </div>
+  <div class="qr">
+    <div style="font-size:26pt">▶</div>
+    <div>
+      <b>시연 영상 (1분 16초)</b>
+      <p>바코드 스캔 → 알레르기 경고 → 대안 추천 → 맞춤 상품 → 결제 화면 → 부분 취소 → 반품 신청 → 관리자 대시보드 → 매출 통계</p>
+      <p><code>github.com/cjsrudgh98-crypto/CleanEat/blob/main/docs/demo/CleanEat-demo.mp4</code></p>
+    </div>
+  </div>
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>4</span></div>
+</section>
+
+<!-- 5. 아키텍처 -->
+<section class="page">
+  <h2 class="sec"><small>ARCHITECTURE</small>시스템 구조</h2>
+  <p class="lead">프론트엔드는 Maven 빌드 중에 함께 빌드되어 <b>jar 하나</b>에 들어갑니다. 같은 주소에서 SPA와 API를 서빙하므로 CORS 설정 없이 배포할 수 있습니다.</p>
+  <div class="arch">
+    <div class="tier client">
+      <h4>Client</h4>
+      <div class="node"><b>React 19 SPA</b>TypeScript · Vite<br />React Router 7</div>
+      <div class="node"><b>반응형 UI</b>모바일 탭바 / 데스크톱 내비</div>
+      <div class="node"><b>토스 결제 위젯</b>카드 · 가상계좌</div>
+      <div class="node"><b>카메라 바코드</b>quagga2</div>
+    </div>
+    <div class="tier server">
+      <h4>Spring Boot 3.5 (단일 jar)</h4>
+      <div class="server-layers">
+        <div class="node"><b>Security Filter Chain</b>JWT 인증 · OAuth2 로그인 · Rate Limit · JSON 401/403</div>
+        <div class="node"><b>Controller</b>스캔 · 상품 · 장바구니 · 주문 · 결제(웹훅) · 리뷰 · 관리자 · 통계 — 74개 엔드포인트</div>
+        <div class="node"><b>Service</b>IngredientRisk · Ocr · Recommendation · Order(취소/부분취소/반품) · SalesReport · RestockAlert · Report(PDF)</div>
+        <div class="node"><b>Repository (Spring Data JPA)</b>엔티티 20개 · 비관적 잠금(주문 행) · batch fetch로 N+1 제거</div>
+        <div class="node"><b>Scheduler · Mail</b>재입고 알림 · 가상계좌 입금 확인 · 커밋 후 메일 발송</div>
+        <div class="node"><b>DB</b>H2(로컬) · MySQL · PostgreSQL(운영) — Flyway 마이그레이션, <code>ddl-auto: validate</code></div>
+      </div>
+    </div>
+    <div class="tier ext">
+      <h4>External</h4>
+      <div class="node"><b>토스페이먼츠</b>승인 · 조회 · 취소(멱등 키)</div>
+      <div class="node"><b>Open Food Facts</b>바코드 제품 정보</div>
+      <div class="node"><b>Tesseract OCR</b>tess4j · 한국어/영어</div>
+      <div class="node"><b>OAuth2</b>Google · Kakao · Naver</div>
+      <div class="node"><b>SMTP</b>인증번호 · 주문 · 재입고 메일</div>
+    </div>
+  </div>
+
+  <h3>기술 스택</h3>
+  <table class="t">
+    <tr><th>Backend</th><td>Java 21, Spring Boot 3.5 (Web, Data JPA, Security, OAuth2 Client, Validation, Mail, Actuator), WebClient, jjwt, OpenPDF, tess4j</td></tr>
+    <tr><th>Frontend</th><td>React 19, TypeScript, Vite 8, React Router 7, 자체 SVG 차트 컴포넌트</td></tr>
+    <tr><th>Database</th><td>H2 / MySQL / PostgreSQL, Flyway (벤더별 마이그레이션)</td></tr>
+    <tr><th>Test</th><td>JUnit 5, Spring Boot Test, Spring Security Test, Vitest, Testing Library (jsdom)</td></tr>
+    <tr><th>DevOps</th><td>멀티 스테이지 Dockerfile (Debian trixie + Temurin 21 JRE), GitHub Actions CI, Dependabot, Actuator liveness/readiness</td></tr>
+  </table>
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>5</span></div>
+</section>
+
+<!-- 6. 문제 해결 1 -->
+<section class="page">
+  <h2 class="sec"><small>PROBLEM SOLVING</small>기술적 도전과 해결</h2>
+  <p class="lead">기능을 “동작하게” 만드는 데서 멈추지 않고, 돈이 오가는 흐름과 운영 상황에서 생길 문제를 먼저 찾아 막았습니다.</p>
+
+  <div class="case">
+    <h3><span class="n">01</span>결제 금액 위변조 · 중복 결제 방지</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>클라이언트가 보낸 결제 금액을 그대로 승인하면 금액 조작이 가능하고, 네트워크 재시도·이중 클릭으로 같은 승인/취소가 두 번 나갈 수 있음</dd>
+      <dt class="s">해결</dt><dd>승인 전에 서버가 계산한 주문 금액과 대조하고, 토스 API 호출에 <b>멱등 키</b>를 붙임 (부분 취소는 <code>cancel-{주문}-item-{상품}</code>). 주문 행을 비관적 잠금으로 잡아 동시 처리를 직렬화</dd>
+      <dt class="r">결과</dt><dd>이미 승인된 결제를 다시 요청하면 토스를 다시 부르지 않고, 이미 취소된 주문·상품의 재취소는 거절 — 테스트로 검증</dd>
+    </dl>
+  </div>
+
+  <div class="case">
+    <h3><span class="n">02</span>가상계좌 웹훅 위조 방지</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>입금 완료 웹훅은 누구나 호출할 수 있는 공개 URL이라, 위조 요청으로 결제 완료 처리될 위험</dd>
+      <dt class="s">해결</dt><dd>발급 때 저장한 secret을 <b>상수 시간 비교</b>로 검증하고, secret이 맞아도 웹훅 본문의 상태는 믿지 않고 <b>토스 API로 다시 조회</b>한 결과만 반영. 웹훅이 오지 않는 환경을 위해 스케줄러가 입금 대기 주문을 주기적으로 확인</dd>
+      <dt class="r">결과</dt><dd>위조 웹훅 무시 · 웹훅 유실 시에도 입금 반영</dd>
+    </dl>
+  </div>
+
+  <div class="case">
+    <h3><span class="n">03</span>부분 취소 · 반품의 금액 정합성</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>상품 단위 취소가 생기면 환불액·재고·주문 상태·매출 통계가 서로 어긋나기 쉬움. 가상계좌 결제는 환불받을 계좌 정보가 추가로 필요</dd>
+      <dt class="s">해결</dt><dd>취소한 상품만 환불·재고 복구하고 마지막 상품까지 취소되면 주문 전체를 취소 상태로 전환. 매출 집계는 부분 취소 금액을 빼고 취소·반품 완료 주문을 제외. 가상계좌용 환불 계좌 입력 폼과 검증 추가</dd>
+      <dt class="r">결과</dt><dd>관리자 매출 통계가 실제 결제 금액과 일치</dd>
+    </dl>
+  </div>
+
+  <div class="case">
+    <h3><span class="n">04</span>탈취된 토큰 무효화</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>JWT는 서버에 상태가 없어서, 비밀번호를 바꿔도 이미 발급된 토큰은 만료 전까지 계속 쓸 수 있음</dd>
+      <dt class="s">해결</dt><dd>회원별 토큰 버전을 두고 JWT에 <code>ver</code> 클레임으로 넣음. 비밀번호를 바꾸면 버전이 올라가 이전 토큰이 모두 거부됨 (변경한 본인에게는 새 토큰 발급)</dd>
+      <dt class="r">결과</dt><dd>비밀번호 변경 즉시 다른 기기의 세션 차단</dd>
+    </dl>
+  </div>
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>6</span></div>
+</section>
+
+<!-- 7. 문제 해결 2 -->
+<section class="page">
+  <div class="case">
+    <h3><span class="n">05</span>스키마 관리: <code>ddl-auto: update</code> → Flyway</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>Hibernate 자동 스키마 변경은 컬럼 삭제·타입 변경을 반영하지 못하고, 운영 DB에서 어떤 변경이 적용됐는지 추적할 수 없음</dd>
+      <dt class="s">해결</dt><dd>H2·MySQL·PostgreSQL 벤더별 마이그레이션(<code>db/migration/{vendor}</code>)을 만들고 Hibernate는 <code>validate</code>만 하도록 변경. 이미 운영 중이던 DB는 <code>baseline-on-migrate</code>로 이력만 기록해 이전</dd>
+      <dt class="r">결과</dt><dd>마이그레이션을 빠뜨리면 기동 단계에서 바로 실패 · 로컬 MySQL 데이터를 백업 후 무손실로 이전</dd>
+    </dl>
+  </div>
+
+  <div class="case">
+    <h3><span class="n">06</span>N+1 쿼리 제거 · 페이지네이션</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>상품 목록에서 알레르기·식단 등 연관 데이터를 상품마다 따로 조회해, 상품 47개에 SQL이 143번 실행</dd>
+      <dt class="s">해결</dt><dd><code>default_batch_fetch_size</code>로 연관 엔티티를 묶어 조회. 스캔 기록·주문 내역·관리자 주문 목록은 페이지 단위 응답과 “더 보기”로 변경</dd>
+      <dt class="r">결과</dt><dd>상품 목록 쿼리 143회 → 수 회 · 데이터가 늘어도 응답 크기 일정</dd>
+    </dl>
+  </div>
+
+  <div class="case">
+    <h3><span class="n">07</span>OCR 네이티브 의존성과 배포 이미지</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>tess4j는 시스템 Tesseract/Leptonica 버전에 민감해서 로컬(Windows)에서는 되지만 리눅스 이미지에서 깨질 수 있음</dd>
+      <dt class="s">해결</dt><dd>실행 이미지를 Debian trixie로 두고 Temurin 21 JRE만 복사해 넣는 멀티 스테이지 Dockerfile 작성. CI 백엔드 테스트도 같은 배포판 컨테이너에서 실행하고, Dependabot이 OCR을 깨뜨리는 버전을 올리지 않도록 고정</dd>
+      <dt class="r">결과</dt><dd>“내 PC에서만 되는 OCR” 방지 · 배포 전 CI에서 확인</dd>
+    </dl>
+  </div>
+
+  <div class="case">
+    <h3><span class="n">08</span>운영 안정성 · 라이선스</h3>
+    <dl class="psr">
+      <dt class="p">문제</dt><dd>메일 서버가 잠깐 안 되면 헬스체크가 DOWN이 되어 배포 플랫폼이 서버를 계속 재시작. PDF 한글 폰트로 재배포가 허용되지 않는 시스템 폰트를 쓰고 있었음</dd>
+      <dt class="s">해결</dt><dd>Actuator liveness/readiness를 분리하고 메일 헬스체크는 제외. 메일은 트랜잭션 커밋 후에 발송. 폰트는 <b>나눔고딕(SIL OFL)</b>으로 교체하고 라이선스 전문 포함</dd>
+      <dt class="r">결과</dt><dd>부가 기능 장애가 주문·조회를 멈추지 않음 · 저장소/이미지 배포 시 라이선스 문제 없음</dd>
+    </dl>
+  </div>
+
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>7</span></div>
+</section>
+
+<!-- 8. 품질 · 향후 계획 -->
+<section class="page">
+  <h2 class="sec"><small>QUALITY</small>테스트 · CI/CD</h2>
+  <p class="lead">모든 push와 PR에서 테스트·빌드가 자동으로 돌고, 의존성 업데이트도 CI를 통과한 것만 반영합니다.</p>
+  <div class="flow" style="grid-template-columns:1fr 6mm 1fr 6mm 1fr 6mm 1fr">
+    <div class="step"><em>TRIGGER</em><h4>push · PR</h4><p>Dependabot PR 포함</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><em>BACKEND</em><h4>테스트 283개</h4><p>Debian 컨테이너 + tessdata로 OCR까지</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><em>FRONTEND</em><h4>lint · test · build</h4><p>ESLint · Vitest 52개 · tsc</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><em>DOCKER</em><h4>이미지 빌드</h4><p>멀티 스테이지 · 프론트 포함 단일 jar</p></div>
+  </div>
+  <table class="t">
+    <tr><th>백엔드 283개</th><td>서비스 단위, 컨트롤러·보안 통합, 결제 멱등성, 부분 취소·반품, 매출 집계, PDF 한글 렌더링, OCR</td></tr>
+    <tr><th>프론트 52개</th><td>Vitest + Testing Library: 주문 취소·반품·환불 계좌 폼 검증, 차트 스케일, 재입고 알림 버튼 등</td></tr>
+    <tr><th>CI</th><td>push·PR마다 ① 백엔드 테스트(Debian 컨테이너) ② 프론트 lint·test·build ③ Docker 이미지 빌드</td></tr>
+    <tr><th>Dependabot</th><td>의존성 업데이트 PR 자동 생성 → CI 통과한 것만 병합, 마이그레이션이 필요한 메이저는 제외 규칙으로 관리</td></tr>
+  </table>
+
+  <h2 class="sec" style="margin-top:9mm;font-size:15pt"><small>NEXT</small>앞으로 개선할 점</h2>
+  <div class="grid2" style="margin-top:3mm">
+    <div class="box"><h3>프레임워크 업그레이드</h3><ul>
+      <li>Spring Boot 4 · OpenPDF 3 마이그레이션 (현재 Dependabot 메이저 제외 규칙으로 관리 중)</li>
+      <li>다음 Java LTS로 런타임·CI 이미지 함께 전환</li></ul></div>
+    <div class="box"><h3>기능 · 운영</h3><ul>
+      <li>E2E 테스트(Playwright)를 CI에 포함</li>
+      <li>OCR 인식률 개선을 위한 이미지 전처리</li>
+      <li>레이트리밋을 인스턴스 메모리 → Redis로 옮겨 수평 확장 대비</li></ul></div>
+  </div>
+
+  <div class="qr" style="margin-top:9mm">
+    <div style="font-size:24pt">🔗</div>
+    <div>
+      <b>저장소 · 시연 영상</b>
+      <p><code>github.com/cjsrudgh98-crypto/CleanEat</code></p>
+      <p style="color:var(--ink-2)">README에 실행 방법(H2로 바로 실행 / Docker), 화면, 시연 영상이 있습니다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>CleanEat · 포트폴리오</span><span>8</span></div>
+</section>
+
+</body>
+</html>
