@@ -30,6 +30,11 @@ updates:
     groups:
       frontend-minor-patch:
         update-types: [minor, patch]
+    ignore:
+      # @types/node는 실제로 쓰는 Node 버전(22 - backend/pom.xml의 nodeVersion)에 맞춰 둔다.
+      # 메이저를 올리면 Node 22에 없는 API도 타입 검사를 통과해 버린다. Node를 올릴 때 같이 올릴 것.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
 
   # CI에서 쓰는 GitHub Actions (actions/checkout 등)
   - package-ecosystem: github-actions
