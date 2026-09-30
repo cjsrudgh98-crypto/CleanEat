@@ -3,7 +3,7 @@
 # ../frontend를 함께 COPY해서 백엔드가 같은 origin에서 프론트를 서빙하기 때문입니다.
 #   docker build -f backend/Dockerfile -t cleaneat .   (CleanEat/ 에서 실행)
 
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3-eclipse-temurin-26 AS build
 WORKDIR /workspace
 
 # 의존성만 먼저 받아서 캐시 재사용
