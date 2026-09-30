@@ -1,0 +1,9 @@
+{
+  "name": "run-cleaneat-driver",
+  "private": true,
+  "type": "module",
+  "description": "CleanEat 화면 조종용 - 설치된 Edge/Chrome을 playwright-core로 조종한다 (브라우저 다운로드 없음)",
+  "dependencies": {
+    "playwright-core": "1.63.0"
+  }
+}

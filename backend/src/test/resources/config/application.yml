@@ -1,0 +1,7 @@
+# 테스트 전용 설정 (main의 application.yml 위에 덧씌워짐)
+app:
+  # 같은 테스트 컨텍스트에서 가입/로그인을 여러 번 호출하므로 시도 횟수 제한은 끈다 (제한 자체는 RateLimitFilterTest에서 검증)
+  rate-limit:
+    enabled: false
+  mail:
+    dev-mode: true

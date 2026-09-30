@@ -1,0 +1,77 @@
+:root {
+  --bg: #f4f8f6;
+  --bg-outer: #dbe6df;
+  --surface: #ffffff;
+  --surface-alt: #eef4f0;
+  --border: #e1e8e3;
+  --text: #0e1f17;
+  --text-muted: #5c6b62;
+
+  --brand: #0ea875;
+  --brand-dark: #0b8a5f;
+  --brand-tint: #e3f6ee;
+  --accent: #ff8a3d;
+  --accent-tint: #ffece0;
+  --ink: #0e1f17;
+
+  --low-bg: #e6f3ec;
+  --low-fg: #1f7a4d;
+  --medium-bg: #fdf1dc;
+  --medium-fg: #a15c07;
+  --high-bg: #fbe4e2;
+  --high-fg: #b3261e;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 1px 3px rgba(14, 31, 23, 0.07);
+  --shadow-md: 0 10px 28px rgba(14, 31, 23, 0.12);
+  --shadow-lg: 0 24px 70px rgba(14, 31, 23, 0.22), 0 2px 8px rgba(14, 31, 23, 0.08);
+
+  /* 차트 - 위험도 3단계(안전/주의/위험). 색약 시뮬레이션에서도 이웃한 단계가 구분되도록 검증한 값 */
+  --risk-low-mark: #0a7d4a;
+  --risk-medium-mark: #eda100;
+  --risk-high-mark: #d03b3b;
+  /* 차트 - 순위 막대(한 가지 값). 위험도 색과 겹치지 않는 중립 파랑 */
+  --chart-bar: #2a78d6;
+  --chart-grid: #e8eee9;
+  --chart-axis: #c9d3cc;
+  /* 별점 (위험도 색과 역할이 다르므로 따로 둔다) */
+  --star: #f2a900;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #10140f;
+    --bg-outer: #070907;
+    --surface: #1a201a;
+    --surface-alt: #212820;
+    --border: #2b332c;
+    --text: #eef1ec;
+    --text-muted: #a4ada2;
+
+    --brand: #28c491;
+    --brand-dark: #3ddba3;
+    --brand-tint: #133527;
+    --accent: #ff9d5c;
+    --accent-tint: #3a2416;
+
+    --low-bg: #173324;
+    --low-fg: #4fd08c;
+    --medium-bg: #3a2c11;
+    --medium-fg: #f0b64c;
+    --high-bg: #3a1a17;
+    --high-fg: #f0837a;
+
+    --risk-low-mark: #1a9480;
+    --risk-medium-mark: #c48400;
+    --risk-high-mark: #d0355a;
+    --chart-bar: #3987e5;
+    --chart-grid: #263027;
+    --chart-axis: #3a453b;
+    --star: #f5b82e;
+
+    color-scheme: dark;
+  }
+}

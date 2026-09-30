@@ -1,0 +1,12 @@
+# 줄바꿈: 저장소에는 LF로 저장하고, 체크아웃할 때는 각 OS 기본값을 따른다
+* text=auto
+
+# 셸 스크립트는 어느 OS에서 받아도 LF - CRLF가 되면 bash가 `$'\r': command not found`로 멈춘다
+*.sh text eol=lf
+
+# 바이너리 (줄바꿈 변환/diff 대상 아님)
+*.ttf binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.traineddata binary

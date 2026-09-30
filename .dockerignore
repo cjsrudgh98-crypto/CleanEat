@@ -1,0 +1,11 @@
+backend/target
+backend/.idea
+frontend/node_modules
+frontend/dist
+frontend/node
+frontend/legacy
+.git
+.idea
+*.md
+# 이미지 빌드 때 upstream에서 받으므로 빌드 컨텍스트에 보낼 필요 없음
+backend/tessdata

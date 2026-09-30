@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CleanEat 성분 스캐너</title>
+<style>
+  :root{
+    --bg:#f6f7f5;
+    --surface:#ffffff;
+    --border:#e2e5e0;
+    --text:#1c2321;
+    --text-muted:#5f6b64;
+    --brand:#1f7a4d;
+    --brand-dark:#155c3a;
+    --brand-tint:#e6f3ec;
+    --low-bg:#e6f3ec; --low-fg:#1f7a4d;
+    --medium-bg:#fdf1dc; --medium-fg:#a15c07;
+    --high-bg:#fbe4e2; --high-fg:#b3261e;
+    --radius:12px;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none!important;}
+  body{
+    margin:0;
+    padding:2rem 1rem 3rem;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+  header{margin-bottom:1.75rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+  header .header-copy{flex:1;min-width:220px;}
+  header h1{font-size:1.5rem;margin:0 0 .25rem;}
+  header p{margin:0;color:var(--text-muted);font-size:.9rem;}
+
+  .auth-widget{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
+  .ghost-btn{
+    padding:.5rem .9rem;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface);color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;
+  }
+  .ghost-btn:hover{border-color:var(--brand);color:var(--brand);}
+  .retry-btn{margin-top:.6rem;}
+  .auth-username{font-size:.88rem;font-weight:600;color:var(--text-muted);}
+
+  .auth-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;}
+  .auth-panel-header h2{font-size:1.05rem;margin:0;}
+  .icon-btn{
+    width:28px;height:28px;border-radius:50%;border:none;background:transparent;
+    color:var(--text-muted);font-size:1.1rem;line-height:1;cursor:pointer;
+  }
+  .icon-btn:hover{background:var(--bg);}
+  #authPanel input{margin-bottom:.85rem;}
+  .auth-switch{margin:.85rem 0 0;font-size:.85rem;color:var(--text-muted);}
+  .auth-switch a{color:var(--brand);font-weight:600;text-decoration:none;margin-left:.25rem;}
+  .auth-switch a:hover{text-decoration:underline;}
+  .auth-divider{display:flex;align-items:center;gap:.6rem;margin:1rem 0 .75rem;color:var(--text-muted);font-size:.78rem;}
+  .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .social-login-row{display:flex;flex-direction:column;gap:.5rem;}
+  .social-btn{
+    display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;
+    padding:.55rem .9rem;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface);color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:none;
+  }
+  .social-btn:hover{border-color:var(--brand);color:var(--brand);}
+  .social-btn.google{color:#3c4043;}
+  .social-btn.kakao{background:#FEE500;border-color:#FEE500;color:#191600;}
+  .social-btn.kakao:hover{color:#191600;opacity:.9;}
+  .social-btn.naver{background:#03C75A;border-color:#03C75A;color:#ffffff;}
+  .social-btn.naver:hover{color:#ffffff;opacity:.9;}
+
+  .history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;}
+  .text-btn{
+    border:none;background:transparent;color:var(--high-fg);font-size:.82rem;font-weight:600;
+    cursor:pointer;padding:.2rem .3rem;
+  }
+  .text-btn:hover{text-decoration:underline;}
+  .history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem;}
+  .history-item{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;
+    padding:.6rem .75rem;border:1px solid var(--border);border-radius:8px;
+  }
+  .history-item-right{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
+  .history-delete-btn{
+    width:26px;height:26px;border-radius:50%;border:none;background:transparent;
+    color:var(--text-muted);font-size:1rem;line-height:1;cursor:pointer;
+  }
+  .history-delete-btn:hover{background:var(--high-bg);color:var(--high-fg);}
+  .history-report-btn{
+    width:26px;height:26px;border-radius:50%;border:none;background:transparent;
+    color:var(--text-muted);font-size:.95rem;line-height:1;cursor:pointer;
+  }
+  .history-report-btn:hover{background:var(--brand-tint);color:var(--brand);}
+  .history-report-btn:disabled{opacity:.5;cursor:default;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.25rem;
+    margin-bottom:1.25rem;
+  }
+
+  .tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;}
+  .tab-btn{
+    flex:1;
+    padding:.7rem 1rem;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text-muted);
+    font-size:.95rem;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .tab-btn[aria-selected="true"]{
+    background:var(--brand);
+    border-color:var(--brand);
+    color:#fff;
+  }
+  .tab-panel[hidden]{display:none;}
+
+  label{display:block;font-size:.85rem;font-weight:600;color:var(--text-muted);margin-bottom:.4rem;}
+
+  .barcode-row{display:flex;gap:.5rem;}
+  .camera-row{margin-top:.5rem;}
+  .camera-modal{
+    position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:50;
+    display:flex;align-items:center;justify-content:center;padding:1rem;
+  }
+  .camera-modal[hidden]{display:none;}
+  .camera-box{
+    background:var(--surface);border-radius:var(--radius);padding:1rem;
+    width:100%;max-width:420px;
+  }
+  .camera-box h3{margin:0 0 .5rem;font-size:1rem;}
+  #cameraViewport{
+    position:relative;width:100%;aspect-ratio:4/3;background:#000;
+    border-radius:8px;overflow:hidden;
+  }
+  #cameraViewport video, #cameraViewport canvas{
+    position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;
+  }
+  .camera-hint{font-size:.82rem;color:var(--text-muted);margin:.6rem 0 0;}
+  .camera-actions{margin-top:.75rem;display:flex;justify-content:flex-end;gap:.5rem;}
+  input[type="text"],input[type="password"]{
+    width:100%;
+    flex:1;
+    padding:.7rem .85rem;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:1rem;
+    min-width:0;
+    background:var(--surface);
+    color:var(--text);
+  }
+  input[type="text"]:focus,input[type="password"]:focus{outline:2px solid var(--brand);outline-offset:1px;}
+
+  button.primary{
+    padding:.7rem 1.25rem;
+    border:none;
+    border-radius:8px;
+    background:var(--brand);
+    color:#fff;
+    font-size:.95rem;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button.primary:hover{background:var(--brand-dark);}
+  button.primary:disabled{background:#a9b3ad;cursor:not-allowed;}
+
+  .dropzone{
+    border:2px dashed var(--border);
+    border-radius:var(--radius);
+    padding:1.5rem;
+    text-align:center;
+    color:var(--text-muted);
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone.drag{border-color:var(--brand);background:var(--brand-tint);}
+  .dropzone input{display:none;}
+  .preview{margin-top:1rem;text-align:center;}
+  .preview img{max-width:100%;max-height:220px;border-radius:8px;border:1px solid var(--border);}
+  .preview-filename{margin-top:.4rem;font-size:.85rem;color:var(--text-muted);}
+
+  .image-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;}
+
+  .status{display:flex;align-items:center;gap:.6rem;color:var(--text-muted);font-size:.9rem;margin-top:.85rem;}
+  .spinner{
+    width:16px;height:16px;border-radius:50%;
+    border:2px solid var(--border);border-top-color:var(--brand);
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .error-box{
+    margin-top:.85rem;
+    padding:.75rem .9rem;
+    background:var(--high-bg);
+    color:var(--high-fg);
+    border-radius:8px;
+    font-size:.9rem;
+  }
+  .success-box{
+    margin-top:.85rem;
+    padding:.75rem .9rem;
+    background:var(--low-bg);
+    color:var(--low-fg);
+    border-radius:8px;
+    font-size:.9rem;
+  }
+
+  select{
+    width:100%;
+    padding:.7rem .85rem;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:1rem;
+    background:var(--surface);
+    color:var(--text);
+  }
+  select:focus{outline:2px solid var(--brand);outline-offset:1px;}
+
+  .allergy-input-row{display:flex;gap:.5rem;}
+  .tag-removable{display:inline-flex;align-items:center;gap:.3rem;}
+  .tag-remove{
+    border:none;background:transparent;color:inherit;font-size:.9rem;line-height:1;
+    cursor:pointer;padding:0;opacity:.7;
+  }
+  .tag-remove:hover{opacity:1;}
+
+  .result-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+  .result-title{font-size:1.15rem;font-weight:700;margin:0;}
+  .result-barcode{color:var(--text-muted);font-size:.85rem;margin-top:.15rem;}
+
+  .risk-badge{
+    display:inline-flex;align-items:center;gap:.35rem;
+    padding:.3rem .7rem;border-radius:999px;font-size:.85rem;font-weight:700;white-space:nowrap;
+  }
+  .risk-badge.LOW{background:var(--low-bg);color:var(--low-fg);}
+  .risk-badge.MEDIUM{background:var(--medium-bg);color:var(--medium-fg);}
+  .risk-badge.HIGH{background:var(--high-bg);color:var(--high-fg);}
+  .risk-dot{width:.55rem;height:.55rem;border-radius:50%;background:currentColor;}
+
+  .section-title{font-size:.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;margin:1.1rem 0 .5rem;}
+
+  .ingredient-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem;}
+  .ingredient-item{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;
+    padding:.6rem .75rem;border:1px solid var(--border);border-radius:8px;
+  }
+  .ingredient-name{font-weight:600;}
+  .ingredient-desc{font-size:.82rem;color:var(--text-muted);margin-top:.15rem;}
+
+  .tag-list{display:flex;flex-wrap:wrap;gap:.4rem;}
+  .tag{
+    padding:.3rem .65rem;border-radius:999px;font-size:.82rem;
+    background:var(--brand-tint);color:var(--brand-dark);font-weight:600;
+  }
+
+  .empty-note{color:var(--text-muted);font-size:.88rem;}
+
+  .recommend-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.4rem;}
+  .recommend-item{
+    display:flex;justify-content:space-between;align-items:center;gap:.5rem;
+    padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;font-size:.88rem;
+  }
+
+  #resultCard[hidden]{display:none;}
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12140f;
+      --surface:#1b1f19;
+      --border:#2c322a;
+      --text:#eef1ec;
+      --text-muted:#a4ada2;
+      --brand:#3fae7d;
+      --brand-dark:#4fc48d;
+      --brand-tint:#1c3226;
+      --low-bg:#173324; --low-fg:#4fd08c;
+      --medium-bg:#3a2c11; --medium-fg:#f0b64c;
+      --high-bg:#3a1a17; --high-fg:#f0837a;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="header-copy">
+      <h1>CleanEat 성분 스캐너</h1>
+      <p>바코드를 조회하거나 성분표 사진을 업로드해서 유해성분과 알레르기 성분을 확인하세요.</p>
+    </div>
+    <div class="auth-widget" id="authWidget">
+      <div id="authLoggedOut">
+        <button class="ghost-btn" id="showLoginBtn">로그인</button>
+        <button class="ghost-btn" id="showRegisterBtn">회원가입</button>
+      </div>
+      <div id="authLoggedIn" hidden>
+        <span class="auth-username" id="authUsername"></span>
+        <button class="ghost-btn" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="card" id="authPanel" hidden>
+    <div class="auth-panel-header">
+      <h2 id="authPanelTitle">로그인</h2>
+      <button class="icon-btn" id="authPanelClose" aria-label="닫기">×</button>
+    </div>
+    <label for="authUsernameInput">아이디</label>
+    <input type="text" id="authUsernameInput" autocomplete="username">
+    <label for="authPasswordInput">비밀번호</label>
+    <input type="password" id="authPasswordInput" autocomplete="current-password">
+    <button class="primary" id="authSubmitBtn" style="width:100%;">로그인</button>
+    <div class="status" id="authStatus" hidden><span class="spinner"></span><span>처리 중...</span></div>
+    <div class="error-box" id="authError" hidden></div>
+    <p class="auth-switch"><span id="authSwitchText">계정이 없으신가요?</span><a href="#" id="authSwitchLink">회원가입</a></p>
+    <div class="auth-divider">또는</div>
+    <div class="social-login-row">
+      <a class="social-btn google" href="/oauth2/authorization/google">Google로 계속하기</a>
+      <a class="social-btn kakao" href="/oauth2/authorization/kakao">카카오로 계속하기</a>
+      <a class="social-btn naver" href="/oauth2/authorization/naver">네이버로 계속하기</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab-btn" role="tab" id="tabBarcodeBtn" aria-selected="true" aria-controls="tabBarcode">바코드 스캔</button>
+      <button class="tab-btn" role="tab" id="tabImageBtn" aria-selected="false" aria-controls="tabImage">이미지 스캔</button>
+    </div>
+
+    <section id="tabBarcode" class="tab-panel" role="tabpanel" aria-labelledby="tabBarcodeBtn">
+      <label for="barcodeInput">바코드 번호</label>
+      <div class="barcode-row">
+        <input type="text" id="barcodeInput" placeholder="예: 3017620422003" inputmode="numeric" autocomplete="off">
+        <button class="primary" id="barcodeSubmit">조회</button>
+      </div>
+      <div class="camera-row">
+        <button class="ghost-btn" id="cameraOpenBtn" type="button">📷 카메라로 스캔</button>
+      </div>
+      <div class="status" id="barcodeStatus" hidden><span class="spinner"></span><span>조회 중...</span></div>
+      <div class="error-box" id="barcodeError" hidden></div>
+      <button class="ghost-btn retry-btn" id="barcodeRetryBtn" hidden>재시도</button>
+    </section>
+
+    <div class="camera-modal" id="cameraModal" hidden>
+      <div class="camera-box">
+        <h3>바코드를 카메라에 비춰주세요</h3>
+        <div id="cameraViewport"></div>
+        <p class="camera-hint" id="cameraHint">카메라 권한을 허용해주세요.</p>
+        <div class="camera-actions">
+          <button class="ghost-btn" id="cameraCloseBtn" type="button">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <section id="tabImage" class="tab-panel" role="tabpanel" aria-labelledby="tabImageBtn" hidden>
+      <label>성분표 사진</label>
+      <div class="dropzone" id="dropzone" tabindex="0">
+        <p id="dropzoneText">클릭하거나 이미지를 끌어다 놓으세요 (JPG, PNG)</p>
+        <input type="file" id="imageInput" accept="image/*">
+      </div>
+      <div class="preview" id="imagePreview" hidden>
+        <img id="previewImg" alt="업로드한 이미지 미리보기">
+        <div class="preview-filename" id="previewFilename"></div>
+      </div>
+      <div class="image-actions">
+        <button class="primary" id="imageSubmit" disabled>분석하기</button>
+      </div>
+      <div class="status" id="imageStatus" hidden><span class="spinner"></span><span>OCR 분석 중...</span></div>
+      <div class="error-box" id="imageError" hidden></div>
+      <button class="ghost-btn retry-btn" id="imageRetryBtn" hidden>재시도</button>
+    </section>
+  </div>
+
+  <div class="card" id="resultCard" hidden>
+    <div class="result-header">
+      <div>
+        <p class="result-title" id="resultTitle"></p>
+        <p class="result-barcode" id="resultBarcode"></p>
+      </div>
+      <span class="risk-badge" id="resultRiskBadge"><span class="risk-dot"></span><span id="resultRiskText"></span></span>
+    </div>
+
+    <p class="section-title">유해성분</p>
+    <ul class="ingredient-list" id="harmfulList"></ul>
+    <p class="empty-note" id="harmfulEmpty" hidden>발견된 유해성분이 없습니다.</p>
+
+    <p class="section-title">알레르기 유발성분</p>
+    <div class="tag-list" id="allergenTags"></div>
+    <p class="empty-note" id="allergenEmpty" hidden>발견된 알레르기 성분이 없습니다.</p>
+
+    <p class="section-title" id="recommendTitle" hidden>대체 제품 추천</p>
+    <ul class="recommend-list" id="recommendList"></ul>
+  </div>
+
+  <div class="card" id="profileCard" hidden>
+    <p class="section-title" style="margin-top:0;">마이페이지 - 프로필</p>
+
+    <label for="dietTypeSelect">식이 유형</label>
+    <select id="dietTypeSelect">
+      <option value="NONE">없음</option>
+      <option value="VEGAN">비건</option>
+      <option value="VEGETARIAN">채식</option>
+      <option value="KETO">키토제닉</option>
+      <option value="GLUTEN_FREE">글루텐프리</option>
+      <option value="LOW_SODIUM">저염식</option>
+    </select>
+
+    <label for="allergyInput" style="margin-top:1rem;">알레르기 성분</label>
+    <div class="allergy-input-row">
+      <input type="text" id="allergyInput" placeholder="예: 땅콩" autocomplete="off">
+      <button class="ghost-btn" id="allergyAddBtn">추가</button>
+    </div>
+    <div class="tag-list" id="profileAllergyTags" style="margin-top:.6rem;"></div>
+    <p class="empty-note" id="profileAllergyEmpty" hidden>등록된 알레르기 성분이 없습니다.</p>
+
+    <button class="primary" id="profileSaveBtn" style="width:100%;margin-top:1.1rem;">저장</button>
+    <div class="status" id="profileStatus" hidden><span class="spinner"></span><span>저장 중...</span></div>
+    <div class="error-box" id="profileError" hidden></div>
+    <div class="success-box" id="profileSuccess" hidden>저장되었습니다.</div>
+  </div>
+
+  <div class="card" id="historyCard" hidden>
+    <div class="history-header">
+      <p class="section-title" style="margin:0;">최근 스캔 기록</p>
+      <button class="text-btn" id="historyClearBtn" hidden>전체 삭제</button>
+    </div>
+    <ul class="history-list" id="historyList"></ul>
+    <p class="empty-note" id="historyEmpty" hidden>아직 스캔 기록이 없습니다.</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
+<script>
+(function () {
+  const RISK_LABEL = { LOW: '안전', MEDIUM: '주의', HIGH: '위험' };
+
+  const tabBarcodeBtn = document.getElementById('tabBarcodeBtn');
+  const tabImageBtn = document.getElementById('tabImageBtn');
+  const tabBarcode = document.getElementById('tabBarcode');
+  const tabImage = document.getElementById('tabImage');
+
+  function selectTab(name) {
+    const isBarcode = name === 'barcode';
+    tabBarcodeBtn.setAttribute('aria-selected', String(isBarcode));
+    tabImageBtn.setAttribute('aria-selected', String(!isBarcode));
+    tabBarcode.hidden = !isBarcode;
+    tabImage.hidden = isBarcode;
+  }
+  tabBarcodeBtn.addEventListener('click', () => selectTab('barcode'));
+  tabImageBtn.addEventListener('click', () => selectTab('image'));
+
+  function setHidden(el, hidden) { el.hidden = hidden; }
+
+  function showError(box, message) {
+    box.textContent = message;
+    setHidden(box, false);
+  }
+  function clearError(box) {
+    setHidden(box, true);
+    box.textContent = '';
+  }
+
+  async function parseErrorMessage(response) {
+    try {
+      const body = await response.json();
+      if (body && body.message) return body.message;
+    } catch (e) { /* ignore */ }
+    return '요청 처리 중 오류가 발생했습니다 (' + response.status + ')';
+  }
+
+  function renderResult(data) {
+    document.getElementById('resultTitle').textContent = data.productName || '분석 결과';
+    document.getElementById('resultBarcode').textContent = data.barcode ? '바코드: ' + data.barcode : '';
+
+    const badge = document.getElementById('resultRiskBadge');
+    badge.className = 'risk-badge ' + data.overallRisk;
+    document.getElementById('resultRiskText').textContent =
+      (RISK_LABEL[data.overallRisk] || data.overallRisk) + ' · ' + data.overallRisk;
+
+    const harmfulList = document.getElementById('harmfulList');
+    const harmfulEmpty = document.getElementById('harmfulEmpty');
+    harmfulList.innerHTML = '';
+    const harmful = data.harmfulIngredients || [];
+    if (harmful.length === 0) {
+      setHidden(harmfulEmpty, false);
+    } else {
+      setHidden(harmfulEmpty, true);
+      harmful.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'ingredient-item';
+        li.innerHTML =
+          '<div><div class="ingredient-name">' + escapeHtml(item.ingredientName) + '</div>' +
+          '<div class="ingredient-desc">' + escapeHtml(item.description || '') + '</div></div>' +
+          '<span class="risk-badge ' + item.riskLevel + '"><span class="risk-dot"></span>' +
+          (RISK_LABEL[item.riskLevel] || item.riskLevel) + '</span>';
+        harmfulList.appendChild(li);
+      });
+    }
+
+    const allergenTags = document.getElementById('allergenTags');
+    const allergenEmpty = document.getElementById('allergenEmpty');
+    allergenTags.innerHTML = '';
+    const allergens = data.allergenMatches || [];
+    if (allergens.length === 0) {
+      setHidden(allergenEmpty, false);
+    } else {
+      setHidden(allergenEmpty, true);
+      allergens.forEach(name => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = name;
+        allergenTags.appendChild(span);
+      });
+    }
+
+    const recommendTitle = document.getElementById('recommendTitle');
+    const recommendList = document.getElementById('recommendList');
+    recommendList.innerHTML = '';
+    const recommendations = data.recommendations || [];
+    if (recommendations.length === 0) {
+      setHidden(recommendTitle, true);
+    } else {
+      setHidden(recommendTitle, false);
+      recommendations.forEach(product => {
+        const li = document.createElement('li');
+        li.className = 'recommend-item';
+        li.innerHTML =
+          '<span>' + escapeHtml(product.name) + '</span>' +
+          '<span class="risk-badge ' + product.riskLevel + '"><span class="risk-dot"></span>' +
+          (RISK_LABEL[product.riskLevel] || product.riskLevel) + '</span>';
+        recommendList.appendChild(li);
+      });
+    }
+
+    setHidden(document.getElementById('resultCard'), false);
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  // --- 인증(로그인/회원가입) ---
+  const AUTH_STORAGE_KEY = 'cleaneat_auth';
+
+  function loadAuthState() {
+    try {
+      const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function saveAuthState(state) {
+    authState = state;
+    try {
+      if (state) localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state));
+      else localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (e) { /* ignore (private browsing 등) */ }
+  }
+  function authHeaders() {
+    return authState ? { 'Authorization': 'Bearer ' + authState.token } : {};
+  }
+
+  let authState = loadAuthState();
+  let authMode = 'login';
+
+  const authLoggedOut = document.getElementById('authLoggedOut');
+  const authLoggedIn = document.getElementById('authLoggedIn');
+  const authUsernameEl = document.getElementById('authUsername');
+  const authPanel = document.getElementById('authPanel');
+  const authPanelTitle = document.getElementById('authPanelTitle');
+  const authUsernameInput = document.getElementById('authUsernameInput');
+  const authPasswordInput = document.getElementById('authPasswordInput');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const authStatus = document.getElementById('authStatus');
+  const authError = document.getElementById('authError');
+  const authSwitchText = document.getElementById('authSwitchText');
+  const authSwitchLink = document.getElementById('authSwitchLink');
+  const historyCard = document.getElementById('historyCard');
+  const historyList = document.getElementById('historyList');
+  const historyEmpty = document.getElementById('historyEmpty');
+  const historyClearBtn = document.getElementById('historyClearBtn');
+  const profileCard = document.getElementById('profileCard');
+
+  function updateAuthUI() {
+    const loggedIn = !!authState;
+    setHidden(authLoggedOut, loggedIn);
+    setHidden(authLoggedIn, !loggedIn);
+    if (loggedIn) {
+      authUsernameEl.textContent = authState.username + '님';
+      setHidden(historyCard, false);
+      setHidden(profileCard, false);
+      loadHistory();
+      loadProfile();
+    } else {
+      setHidden(historyCard, true);
+      historyList.innerHTML = '';
+      setHidden(historyClearBtn, true);
+      setHidden(profileCard, true);
+    }
+  }
+
+  function openAuthPanel(mode) {
+    authMode = mode;
+    clearError(authError);
+    authUsernameInput.value = '';
+    authPasswordInput.value = '';
+    authPanelTitle.textContent = mode === 'login' ? '로그인' : '회원가입';
+    authSubmitBtn.textContent = mode === 'login' ? '로그인' : '회원가입';
+    authSwitchText.textContent = mode === 'login' ? '계정이 없으신가요?' : '이미 계정이 있으신가요?';
+    authSwitchLink.textContent = mode === 'login' ? '회원가입' : '로그인';
+    setHidden(authPanel, false);
+    authUsernameInput.focus();
+  }
+  function closeAuthPanel() { setHidden(authPanel, true); }
+
+  document.getElementById('showLoginBtn').addEventListener('click', () => openAuthPanel('login'));
+  document.getElementById('showRegisterBtn').addEventListener('click', () => openAuthPanel('register'));
+  document.getElementById('authPanelClose').addEventListener('click', closeAuthPanel);
+  authSwitchLink.addEventListener('click', e => {
+    e.preventDefault();
+    openAuthPanel(authMode === 'login' ? 'register' : 'login');
+  });
+
+  async function submitAuth() {
+    const username = authUsernameInput.value.trim();
+    const password = authPasswordInput.value;
+    clearError(authError);
+    if (!username || !password) {
+      showError(authError, '아이디와 비밀번호를 입력해주세요.');
+      return;
+    }
+    if (authMode === 'register' && password.length < 8) {
+      showError(authError, '비밀번호는 최소 8자 이상이어야 합니다.');
+      return;
+    }
+
+    authSubmitBtn.disabled = true;
+    setHidden(authStatus, false);
+    try {
+      const url = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (!response.ok) {
+        showError(authError, await parseErrorMessage(response));
+        return;
+      }
+      const data = await response.json();
+      saveAuthState({ token: data.token, userId: data.userId, username: data.username });
+      updateAuthUI();
+      closeAuthPanel();
+    } catch (e) {
+      showError(authError, '서버에 연결할 수 없습니다.');
+    } finally {
+      authSubmitBtn.disabled = false;
+      setHidden(authStatus, true);
+    }
+  }
+  authSubmitBtn.addEventListener('click', submitAuth);
+  authPasswordInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    saveAuthState(null);
+    updateAuthUI();
+  });
+
+  async function loadHistory() {
+    if (!authState) return;
+    try {
+      const response = await fetch('/api/users/' + authState.userId + '/history', { headers: authHeaders() });
+      if (response.status === 401) {
+        saveAuthState(null);
+        updateAuthUI();
+        return;
+      }
+      if (!response.ok) return;
+      renderHistory(await response.json());
+    } catch (e) { /* ignore */ }
+  }
+
+  function renderHistory(items) {
+    historyList.innerHTML = '';
+    if (!items || items.length === 0) {
+      setHidden(historyEmpty, false);
+      setHidden(historyClearBtn, true);
+      return;
+    }
+    setHidden(historyEmpty, true);
+    setHidden(historyClearBtn, false);
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'history-item';
+      const when = new Date(item.scannedAt).toLocaleString('ko-KR');
+      li.innerHTML =
+        '<div><div class="ingredient-name">' + escapeHtml(item.productName) + '</div>' +
+        '<div class="ingredient-desc">' + when + '</div></div>' +
+        '<div class="history-item-right">' +
+        '<span class="risk-badge ' + item.overallRisk + '"><span class="risk-dot"></span>' +
+        (RISK_LABEL[item.overallRisk] || item.overallRisk) + '</span>' +
+        '<button class="history-report-btn" data-id="' + item.id + '" aria-label="리포트 다운로드" title="PDF 리포트 다운로드">⬇</button>' +
+        '<button class="history-delete-btn" data-id="' + item.id + '" aria-label="기록 삭제" title="기록 삭제">×</button>' +
+        '</div>';
+      historyList.appendChild(li);
+    });
+  }
+
+  historyList.addEventListener('click', async e => {
+    const btn = e.target.closest('.history-delete-btn');
+    if (!btn || !authState) return;
+    if (!confirm('이 스캔 기록을 삭제할까요?')) return;
+    btn.disabled = true;
+    try {
+      const response = await fetch('/api/users/' + authState.userId + '/history/' + btn.dataset.id, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      if (response.status === 401) {
+        saveAuthState(null);
+        updateAuthUI();
+        return;
+      }
+      if (!response.ok && response.status !== 204) return;
+      loadHistory();
+    } catch (e2) { /* ignore */ } finally {
+      btn.disabled = false;
+    }
+  });
+
+  historyList.addEventListener('click', async e => {
+    const btn = e.target.closest('.history-report-btn');
+    if (!btn || !authState) return;
+    btn.disabled = true;
+    try {
+      const response = await fetch('/api/users/' + authState.userId + '/history/' + btn.dataset.id + '/report', {
+        headers: authHeaders()
+      });
+      if (response.status === 401) {
+        saveAuthState(null);
+        updateAuthUI();
+        return;
+      }
+      if (!response.ok) {
+        alert('리포트를 다운로드할 수 없습니다.');
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'cleaneat-report-' + btn.dataset.id + '.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (e2) {
+      alert('리포트를 다운로드할 수 없습니다.');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  historyClearBtn.addEventListener('click', async () => {
+    if (!authState) return;
+    if (!confirm('전체 스캔 기록을 삭제할까요? 되돌릴 수 없습니다.')) return;
+    historyClearBtn.disabled = true;
+    try {
+      const response = await fetch('/api/users/' + authState.userId + '/history', {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      if (response.status === 401) {
+        saveAuthState(null);
+        updateAuthUI();
+        return;
+      }
+      if (!response.ok && response.status !== 204) return;
+      loadHistory();
+    } catch (e) { /* ignore */ } finally {
+      historyClearBtn.disabled = false;
+    }
+  });
+
+  // --- 프로필(마이페이지) ---
+  const dietTypeSelect = document.getElementById('dietTypeSelect');
+  const allergyInput = document.getElementById('allergyInput');
+  const allergyAddBtn = document.getElementById('allergyAddBtn');
+  const profileAllergyTags = document.getElementById('profileAllergyTags');
+  const profileAllergyEmpty = document.getElementById('profileAllergyEmpty');
+  const profileSaveBtn = document.getElementById('profileSaveBtn');
+  const profileStatus = document.getElementById('profileStatus');
+  const profileError = document.getElementById('profileError');
+  const profileSuccess = document.getElementById('profileSuccess');
+  let profileAllergies = [];
+
+  function renderProfileAllergyTags() {
+    profileAllergyTags.innerHTML = '';
+    if (profileAllergies.length === 0) {
+      setHidden(profileAllergyEmpty, false);
+      return;
+    }
+    setHidden(profileAllergyEmpty, true);
+    profileAllergies.forEach((name, idx) => {
+      const span = document.createElement('span');
+      span.className = 'tag tag-removable';
+      span.innerHTML =
+        '<span>' + escapeHtml(name) + '</span>' +
+        '<button type="button" class="tag-remove" data-idx="' + idx + '" aria-label="' + escapeHtml(name) + ' 삭제">×</button>';
+      profileAllergyTags.appendChild(span);
+    });
+  }
+
+  profileAllergyTags.addEventListener('click', e => {
+    const btn = e.target.closest('.tag-remove');
+    if (!btn) return;
+    profileAllergies.splice(Number(btn.dataset.idx), 1);
+    renderProfileAllergyTags();
+  });
+
+  function addAllergyFromInput() {
+    const value = allergyInput.value.trim();
+    if (!value) return;
+    if (!profileAllergies.includes(value)) {
+      profileAllergies.push(value);
+      renderProfileAllergyTags();
+    }
+    allergyInput.value = '';
+    allergyInput.focus();
+  }
+  allergyAddBtn.addEventListener('click', addAllergyFromInput);
+  allergyInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addAllergyFromInput(); }
+  });
+
+  async function loadProfile() {
+    if (!authState) return;
+    try {
+      const response = await fetch('/api/users/' + authState.userId + '/profile', { headers: authHeaders() });
+      if (response.status === 401) {
+        saveAuthState(null);
+        updateAuthUI();
+        return;
+      }
+      if (!response.ok) return;
+      const data = await response.json();
+      dietTypeSelect.value = data.dietType || 'NONE';
+      profileAllergies = data.allergies ? data.allergies.slice() : [];
+      renderProfileAllergyTags();
+    } catch (e) { /* ignore */ }
+  }
+
+  profileSaveBtn.addEventListener('click', async () => {
+    if (!authState) return;
+    clearError(profileError);
+    setHidden(profileSuccess, true);
+    profileSaveBtn.disabled = true;
+    setHidden(profileStatus, false);
+    try {
+      const response = await fetch('/api/users/' + authState.userId + '/profile', {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+        body: JSON.stringify({ allergies: profileAllergies, dietType: dietTypeSelect.value })
+      });
+      if (response.status === 401) {
+        saveAuthState(null);
+        updateAuthUI();
+        return;
+      }
+      if (!response.ok) {
+        showError(profileError, await parseErrorMessage(response));
+        return;
+      }
+      const data = await response.json();
+      profileAllergies = data.allergies ? data.allergies.slice() : [];
+      renderProfileAllergyTags();
+      setHidden(profileSuccess, false);
+    } catch (e) {
+      showError(profileError, '서버에 연결할 수 없습니다.');
+    } finally {
+      profileSaveBtn.disabled = false;
+      setHidden(profileStatus, true);
+    }
+  });
+
+  // --- 바코드 스캔 ---
+  const barcodeInput = document.getElementById('barcodeInput');
+  const barcodeSubmit = document.getElementById('barcodeSubmit');
+  const barcodeStatus = document.getElementById('barcodeStatus');
+  const barcodeError = document.getElementById('barcodeError');
+  const barcodeRetryBtn = document.getElementById('barcodeRetryBtn');
+
+  async function submitBarcode() {
+    const barcode = barcodeInput.value.trim();
+    clearError(barcodeError);
+    setHidden(barcodeRetryBtn, true);
+    if (!barcode) {
+      showError(barcodeError, '바코드를 입력해주세요.');
+      return;
+    }
+    barcodeSubmit.disabled = true;
+    setHidden(barcodeStatus, false);
+    setHidden(document.getElementById('resultCard'), true);
+    try {
+      const response = await fetch('/api/scan/barcode', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+        body: JSON.stringify({ barcode })
+      });
+      if (!response.ok) {
+        showError(barcodeError, await parseErrorMessage(response));
+        setHidden(barcodeRetryBtn, false);
+        return;
+      }
+      renderResult(await response.json());
+      if (authState) loadHistory();
+    } catch (e) {
+      showError(barcodeError, '서버에 연결할 수 없습니다.');
+      setHidden(barcodeRetryBtn, false);
+    } finally {
+      barcodeSubmit.disabled = false;
+      setHidden(barcodeStatus, true);
+    }
+  }
+  barcodeSubmit.addEventListener('click', submitBarcode);
+  barcodeInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitBarcode(); });
+  barcodeRetryBtn.addEventListener('click', submitBarcode);
+
+  // --- 카메라 바코드 스캔 (QuaggaJS) ---
+  const cameraOpenBtn = document.getElementById('cameraOpenBtn');
+  const cameraModal = document.getElementById('cameraModal');
+  const cameraCloseBtn = document.getElementById('cameraCloseBtn');
+  const cameraViewport = document.getElementById('cameraViewport');
+  const cameraHint = document.getElementById('cameraHint');
+  let scannerActive = false;
+  let scannerStarting = false;
+  let recentDetections = [];
+
+  function onBarcodeDetected(result) {
+    const code = result && result.codeResult && result.codeResult.code;
+    if (!code) return;
+    recentDetections.push(code);
+    if (recentDetections.length > 5) recentDetections.shift();
+    const matchCount = recentDetections.filter(c => c === code).length;
+    if (matchCount >= 3) {
+      stopScanner();
+      barcodeInput.value = code;
+      submitBarcode();
+    }
+  }
+
+  function stopScanner() {
+    if (scannerActive && window.Quagga) {
+      Quagga.offDetected(onBarcodeDetected);
+      Quagga.stop();
+    }
+    scannerActive = false;
+    recentDetections = [];
+    setHidden(cameraModal, true);
+  }
+
+  function startScanner() {
+    if (scannerActive || scannerStarting) return;
+    if (!window.Quagga) {
+      cameraHint.textContent = '카메라 스캔 라이브러리를 불러오지 못했습니다.';
+      setHidden(cameraModal, false);
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      cameraHint.textContent = '이 브라우저에서는 카메라를 사용할 수 없습니다.';
+      setHidden(cameraModal, false);
+      return;
+    }
+    scannerStarting = true;
+    setHidden(cameraModal, false);
+    cameraHint.textContent = '카메라 권한을 허용해주세요.';
+    Quagga.init({
+      inputStream: {
+        type: 'LiveStream',
+        target: cameraViewport,
+        constraints: { facingMode: 'environment' }
+      },
+      decoder: { readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader'] },
+      locate: true
+    }, function (err) {
+      scannerStarting = false;
+      if (cameraModal.hidden) {
+        // 초기화 중 사용자가 모달을 닫음 - 카메라 스트림을 즉시 해제한다
+        if (!err) Quagga.stop();
+        return;
+      }
+      if (err) {
+        cameraHint.textContent = '카메라를 시작할 수 없습니다: ' + err.message;
+        return;
+      }
+      scannerActive = true;
+      cameraHint.textContent = '바코드를 화면 중앙에 맞춰주세요.';
+      Quagga.start();
+      Quagga.onDetected(onBarcodeDetected);
+    });
+  }
+
+  cameraOpenBtn.addEventListener('click', startScanner);
+  cameraCloseBtn.addEventListener('click', stopScanner);
+
+  // --- 이미지 스캔 ---
+  const dropzone = document.getElementById('dropzone');
+  const dropzoneText = document.getElementById('dropzoneText');
+  const imageInput = document.getElementById('imageInput');
+  const imagePreview = document.getElementById('imagePreview');
+  const previewImg = document.getElementById('previewImg');
+  const previewFilename = document.getElementById('previewFilename');
+  const imageSubmit = document.getElementById('imageSubmit');
+  const imageStatus = document.getElementById('imageStatus');
+  const imageError = document.getElementById('imageError');
+  const imageRetryBtn = document.getElementById('imageRetryBtn');
+  let selectedFile = null;
+
+  dropzone.addEventListener('click', () => imageInput.click());
+  dropzone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') imageInput.click(); });
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) setSelectedFile(e.dataTransfer.files[0]);
+  });
+  imageInput.addEventListener('change', () => {
+    if (imageInput.files && imageInput.files[0]) setSelectedFile(imageInput.files[0]);
+  });
+
+  function setSelectedFile(file) {
+    if (!file.type.startsWith('image/')) {
+      showError(imageError, '이미지 파일만 업로드할 수 있습니다.');
+      return;
+    }
+    clearError(imageError);
+    setHidden(imageRetryBtn, true);
+    selectedFile = file;
+    previewImg.src = URL.createObjectURL(file);
+    previewFilename.textContent = file.name;
+    setHidden(imagePreview, false);
+    dropzoneText.textContent = '다른 이미지를 선택하려면 클릭하세요';
+    imageSubmit.disabled = false;
+  }
+
+  async function submitImage() {
+    if (!selectedFile) return;
+    clearError(imageError);
+    setHidden(imageRetryBtn, true);
+    imageSubmit.disabled = true;
+    setHidden(imageStatus, false);
+    setHidden(document.getElementById('resultCard'), true);
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      const response = await fetch('/api/scan/image', { method: 'POST', headers: authHeaders(), body: formData });
+      if (!response.ok) {
+        showError(imageError, await parseErrorMessage(response));
+        setHidden(imageRetryBtn, false);
+        return;
+      }
+      renderResult(await response.json());
+      if (authState) loadHistory();
+    } catch (e) {
+      showError(imageError, '서버에 연결할 수 없습니다.');
+      setHidden(imageRetryBtn, false);
+    } finally {
+      imageSubmit.disabled = false;
+      setHidden(imageStatus, true);
+    }
+  }
+  imageSubmit.addEventListener('click', submitImage);
+  imageRetryBtn.addEventListener('click', submitImage);
+
+  // --- 소셜 로그인 리다이렉트 결과 처리 (백엔드가 /?token=...&userId=...&username=... 로 리다이렉트) ---
+  (function consumeOAuthRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const userId = params.get('userId');
+    const username = params.get('username');
+    const oauthError = params.get('authError');
+
+    if (token && userId && username) {
+      saveAuthState({ token, userId: Number(userId), username });
+      history.replaceState({}, '', window.location.pathname);
+    } else if (oauthError) {
+      openAuthPanel('login');
+      showError(authError, '소셜 로그인에 실패했습니다. 다시 시도해주세요.');
+      history.replaceState({}, '', window.location.pathname);
+    }
+  })();
+
+  updateAuthUI();
+})();
+</script>
+</body>
+</html>

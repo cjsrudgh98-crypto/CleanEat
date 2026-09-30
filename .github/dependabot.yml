@@ -1,0 +1,51 @@
+# 의존성 업데이트 PR을 자동으로 만든다 (매주 월요일). PR마다 CI(.github/workflows/ci.yml)가 돌아서 깨지는지 바로 보인다.
+# 작은 업데이트(minor/patch)는 생태계별로 PR 하나로 묶고, 큰 업데이트(major)는 따로 올라온다.
+version: 2
+updates:
+  # 백엔드 (Spring Boot, jjwt, openpdf ...)
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 5
+    groups:
+      backend-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # tess4j는 5.13.0에 일부러 고정 - 리눅스(배포 이미지/CI)에서는 시스템 Leptonica를 쓰는데, 5.14 이상은
+      # Debian 안정판에 아직 없는 Leptonica 1.85~1.87을 요구해서 OCR이 깨진다 (DEPLOYMENT.md 3번).
+      # 올릴 때는 backend/Dockerfile의 실행 이미지와 CI 컨테이너도 같이 바꿔야 한다.
+      - dependency-name: net.sourceforge.tess4j:tess4j
+
+  # 프론트 (React, Vite ...)
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Seoul
+    open-pull-requests-limit: 5
+    groups:
+      frontend-minor-patch:
+        update-types: [minor, patch]
+
+  # CI에서 쓰는 GitHub Actions (actions/checkout 등)
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Dockerfile의 기반 이미지 (maven, eclipse-temurin, debian)
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: monthly
+    ignore:
+      # 실행 이미지의 Debian 판을 바꾸면 OCR 라이브러리 버전이 바뀐다 - tess4j와 같이 사람이 확인하고 올릴 것
+      - dependency-name: debian
+        update-types: [version-update:semver-major]
