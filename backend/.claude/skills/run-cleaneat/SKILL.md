@@ -144,6 +144,9 @@ cd ../frontend && PATH="$PWD/node:$PATH" npx vitest run src/pages  # 일부만
   `export JAVA_HOME="$HOME/.jdks/jdk-21.0.12.1+1"`.
 - **로그인 횟수 제한(5분 10회)은 형식이 틀린 요청까지 모든 `POST /api/auth/login`을 센다**, 메모리에 있어서 재시작하면 초기화.
   `driver.mjs`는 실행마다 1~3번 로그인한다.
+- **가입/인증번호 요청 제한(10분 5회)도 접속 IP별** - `seed.py`는 가입을 4번 해서, localhost로 보내면 이어서 돌린
+  `smoke.py`의 가입이 `devCode` KeyError(실제로는 429)로 멈췄다. -> `seed.py`는 `127.0.0.2`로 접속해 한도를 따로 쓴다
+  (루프백이라 H2 콘솔도 됨). seed를 localhost로 되돌리면 이 문제가 다시 생긴다.
 - **관리자 권한은 가입할 때 정해진다** - `ADMIN_USERNAMES` 없이 띄운 서버에서 seed하면 uiadmin이 USER. 서버 재시작 시에도
   목록 기준으로 다시 맞춰진다.
 - **이메일 인증번호는 응답의 `devCode`로 받는다** - 기본 프로필은 메일 서버가 없어서 개발 모드 (`app.mail.dev-mode`).

@@ -9,6 +9,9 @@ import urllib.parse
 import urllib.request
 
 BASE = os.environ.get("CLEANEAT_URL", "http://localhost:8080")
+# 가입/인증번호 요청 횟수 제한(10분 5회)은 접속 IP별로 센다. seed는 가입을 4번 하므로 localhost로 보내면
+# 뒤이어 돌리는 smoke.py의 가입이 429로 막힌다 -> seed는 다른 루프백 주소(127.0.0.2)로 접속해서 한도를 따로 쓴다.
+BASE = BASE.replace("//localhost:", "//127.0.0.2:").replace("//127.0.0.1:", "//127.0.0.2:")
 
 
 def call(method, path, body=None, token=None):
