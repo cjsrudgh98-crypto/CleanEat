@@ -19,7 +19,7 @@
 <br />
 
 <a href="https://github.com/cjsrudgh98-crypto/CleanEat/raw/main/docs/portfolio/CleanEat-portfolio.pdf"><img src="https://img.shields.io/badge/📄_포트폴리오_PDF-다운로드-16a36a?style=for-the-badge" alt="포트폴리오 PDF 다운로드" /></a>
-<a href="docs/demo/CleanEat-demo.mp4"><img src="https://img.shields.io/badge/▶_시연_영상-1분_16초-111827?style=for-the-badge" alt="시연 영상 보기" /></a>
+<a href="docs/demo/CleanEat-demo.mp4"><img src="https://img.shields.io/badge/▶_시연_영상-1분_19초-111827?style=for-the-badge" alt="시연 영상 보기" /></a>
 
 </div>
 
@@ -44,6 +44,7 @@
 - [실행 방법](#-실행-방법)
 - [프로젝트 구조](#-프로젝트-구조)
 - [문서](#-문서)
+- [개발자](#-개발자)
 
 ---
 
@@ -51,7 +52,7 @@
 
 | | |
 |---|---|
-| ▶ **시연 영상** | [CleanEat-demo.mp4](docs/demo/CleanEat-demo.mp4) (1분 16초, 1280×720). 자막으로 단계를 안내하므로 소리 없이 볼 수 있습니다. |
+| ▶ **시연 영상** | [CleanEat-demo.mp4](docs/demo/CleanEat-demo.mp4) (1분 19초, 1280×720). 자막으로 단계를 안내하므로 소리 없이 볼 수 있습니다. |
 | 📄 **포트폴리오 PDF** | [CleanEat-portfolio.pdf](https://github.com/cjsrudgh98-crypto/CleanEat/raw/main/docs/portfolio/CleanEat-portfolio.pdf) (A4 8쪽): 개요 · 화면 · 시스템 구조 · 기술적 도전과 해결 8가지 · 테스트/CI |
 
 **영상 순서**
@@ -300,7 +301,7 @@ stateDiagram-v2
 | **백엔드** | JUnit 5 테스트 **280여 개**: 서비스 단위, 컨트롤러·보안 통합, 결제 멱등성, 부분 취소·반품, 매출 집계, PDF 한글 렌더링, OCR |
 | **프론트엔드** | Vitest + Testing Library 테스트 **50여 개**: 주문 취소·반품 폼 검증, 차트 스케일, 재입고 알림 버튼 등 |
 | **CI** ([`ci.yml`](.github/workflows/ci.yml)) | push와 PR마다 ① 백엔드 테스트(Debian 컨테이너 + tessdata) ② 프론트 lint, test, build ③ Docker 이미지 빌드 |
-| **Dependabot** | Maven, npm, GitHub Actions 의존성 업데이트 PR을 매주 자동으로 올립니다. |
+| **Dependabot** | Maven·npm 의존성은 매주, GitHub Actions와 Docker 기반 이미지는 매월 업데이트 PR을 자동으로 올립니다. OCR 호환성이 걸린 tess4j와 코드 마이그레이션이 필요한 메이저 업데이트는 제외합니다. |
 
 ```bash
 # 백엔드
@@ -367,12 +368,16 @@ docker run -p 8080:8080 cleaneat
 CleanEat
 ├── backend/                         # Spring Boot (프론트 빌드 결과까지 포함해 jar 하나로 배포)
 │   ├── src/main/java/org/example/
-│   │   ├── config/                  # 시드 데이터, 스케줄러, WebClient 설정
+│   │   ├── config/                  # 시드 데이터, 관리자 계정, 스케줄링·WebClient 설정
 │   │   ├── controller/              # REST API (스캔, 상품, 주문, 결제, 관리자 ...)
 │   │   ├── service/                 # 비즈니스 로직 (OCR, 위험도 분석, 주문·결제, 매출 통계 ...)
 │   │   ├── domain/                  # JPA 엔티티
 │   │   ├── repository/
+│   │   ├── payment/                 # 토스페이먼츠 API 클라이언트, 은행 코드
+│   │   ├── scheduler/               # 재입고 알림, 입금 대기 주문 확인, 인증 데이터 정리
 │   │   ├── security/                # JWT, OAuth2, Rate Limit
+│   │   ├── shipping/                # 택배사별 배송 조회 링크
+│   │   ├── util/                    # 성분·알레르기 매칭, 영수증·성분표 텍스트 파싱
 │   │   ├── dto/  exception/  mail/
 │   ├── src/main/resources/
 │   │   ├── db/migration/{h2,mysql,postgresql}/   # Flyway
@@ -399,6 +404,29 @@ CleanEat
 
 - [배포 가이드 (DEPLOYMENT.md)](backend/DEPLOYMENT.md): 운영 프로필, DB, 헬스체크, Flyway, CI
 - [소셜 로그인 설정 (OAUTH_SETUP.md)](backend/OAUTH_SETUP.md): Google, Kakao, Naver 키 발급과 설정
+
+---
+
+## 👤 개발자
+
+<table>
+  <tr>
+    <td align="center" width="160">
+      <a href="https://github.com/cjsrudgh98-crypto"><img src="https://github.com/cjsrudgh98-crypto.png" width="100" alt="천경호" /></a>
+      <br /><b>천경호</b>
+      <br /><sub>풀스택 (기획 · 백엔드 · 프론트엔드 · 배포)</sub>
+    </td>
+    <td>
+
+| | |
+|---|---|
+| 📞 **연락처** | 010-7757-5062 |
+| ✉️ **이메일** | [cjsrudgh98@gmail.com](mailto:cjsrudgh98@gmail.com) |
+| 🐙 **GitHub** | [@cjsrudgh98-crypto](https://github.com/cjsrudgh98-crypto) |
+
+    </td>
+  </tr>
+</table>
 
 ---
 
