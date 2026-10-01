@@ -49,7 +49,7 @@ class JwtAuthenticationFilterTest {
     }
 
     private static AppUserDetails user(int tokenVersion) {
-        return new AppUserDetails("cleaneat_user", "x", List.of(new SimpleGrantedAuthority("ROLE_USER")), tokenVersion);
+        return new AppUserDetails(1L, "cleaneat_user", "x", List.of(new SimpleGrantedAuthority("ROLE_USER")), tokenVersion);
     }
 
     private static TokenClaims claims(int tokenVersion) {

@@ -12,6 +12,7 @@ import org.example.repository.RestockAlertRepository;
 import org.example.repository.ReviewRepository;
 import org.example.repository.StoreListingRepository;
 import org.example.repository.UserRepository;
+import org.example.security.AppUserDetails;
 import org.example.service.UserPreferenceService.Preferences;
 import org.example.util.AllergenMatcher;
 import org.springframework.security.core.Authentication;
@@ -126,6 +127,8 @@ public class ProductCatalogService {
 
     private Long currentUserId(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) return null;
+        Long userId = AppUserDetails.userIdOf(authentication);
+        if (userId != null) return userId;
         return userRepository.findByUsername(authentication.getName()).map(u -> u.getId()).orElse(null);
     }
 

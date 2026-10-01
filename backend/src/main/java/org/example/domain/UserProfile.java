@@ -28,7 +28,8 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    // 기본(EAGER)이면 상품 목록처럼 식단/알레르기만 필요한 곳에서도 회원을 매번 같이 조회한다
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 

@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
 
-        return new AppUserDetails(user.getUsername(), user.getPassword(),
+        return new AppUserDetails(user.getId(), user.getUsername(), user.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())), user.currentTokenVersion());
     }
 }

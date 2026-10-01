@@ -2,8 +2,10 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.domain.DietType;
+import org.example.domain.UserProfile;
 import org.example.repository.UserProfileRepository;
 import org.example.repository.UserRepository;
+import org.example.security.AppUserDetails;
 import org.example.util.AllergenMatcher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,8 +55,13 @@ public class UserPreferenceService {
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetails)) {
             return Preferences.NONE;
         }
-        return userRepository.findByUsername(authentication.getName())
-                .flatMap(user -> userProfileRepository.findByUserId(user.getId()))
+        // JWT 필터가 이미 읽어 둔 회원 id를 쓰고, 없을 때(테스트용 목 사용자 등)만 아이디로 찾는다
+        Long userId = AppUserDetails.userIdOf(authentication);
+        Optional<UserProfile> found = userId != null
+                ? userProfileRepository.findByUserId(userId)
+                : userRepository.findByUsername(authentication.getName())
+                        .flatMap(user -> userProfileRepository.findByUserId(user.getId()));
+        return found
                 .map(profile -> {
                     List<String> allergies = List.copyOf(profile.getAllergies());
                     return new Preferences(true, profile.getEffectiveDietTypes(), allergies, AllergenMatcher.expand(allergies));

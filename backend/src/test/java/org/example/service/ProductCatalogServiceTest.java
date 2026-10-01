@@ -10,6 +10,7 @@ import org.example.repository.FavoriteRepository;
 import org.example.repository.ReviewRepository;
 import org.example.repository.StoreListingRepository;
 import org.example.repository.UserRepository;
+import org.example.security.AppUserDetails;
 import org.example.service.UserPreferenceService.Preferences;
 import org.example.util.AllergenMatcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -146,5 +150,21 @@ class ProductCatalogServiceTest {
         assertThat(result.get(0).getAllergyWarnings()).isEmpty();
         assertThat(result.get(0).getDietMatch()).isNull();
         assertThat(result.get(0).getAllergens()).containsExactly("우유");
+    }
+
+    @Test
+    void 로그인_정보에_회원id가_있으면_회원을_다시_조회하지_않는다() {
+        AppUserDetails principal = new AppUserDetails(7L, "cleaneat_user", "x",
+                List.of(new SimpleGrantedAuthority("ROLE_USER")), 0);
+        Authentication login = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+        when(userPreferenceService.of(login)).thenReturn(new Preferences(true, Set.of(), List.of(), Set.of()));
+        when(favoriteRepository.findProductIdsByUserId(7L)).thenReturn(List.of(1L));
+        when(storeListingRepository.findAll()).thenReturn(List.of(
+                listing("그릭요거트", ProductCategory.DAIRY, 10, Set.of("우유"), Set.of(DietType.VEGETARIAN))));
+
+        List<StoreListingResponse> result = productCatalogService.getAll(login);
+
+        assertThat(result.get(0).getFavorite()).isTrue();
+        verifyNoInteractions(userRepository);
     }
 }
