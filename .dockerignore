@@ -9,3 +9,5 @@ frontend/legacy
 *.md
 # 이미지 빌드 때 upstream에서 받으므로 빌드 컨텍스트에 보낼 필요 없음
 backend/tessdata
+# 배포 설정(.env 비밀값 포함)은 이미지에 필요 없음
+deploy

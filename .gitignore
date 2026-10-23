@@ -43,3 +43,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+# 배포 서버 비밀값 / DB 백업
+deploy/.env
+deploy/backups/

@@ -1,0 +1,66 @@
+# 무료 VM 한 대(Oracle Cloud Always Free 등)에 앱 + PostgreSQL + HTTPS(Caddy)를 같이 띄우는 구성.
+# 사용법은 backend/DEPLOYMENT.md "7. 0원 배포" 참고.
+#   cd deploy && cp .env.example .env  (값 채우기)
+#   docker compose up -d --build
+name: cleaneat
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cleaneat}
+      POSTGRES_USER: ${POSTGRES_USER:-cleaneat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?deploy/.env에 POSTGRES_PASSWORD를 설정하세요}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # 포트를 밖으로 열지 않는다 - app 컨테이너만 내부 네트워크로 접속
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    # 빌드 컨텍스트는 저장소 루트 (Dockerfile이 frontend도 COPY한다)
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    image: cleaneat:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-cleaneat}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-cleaneat}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      # 컨테이너에 메모리 제한이 없으면 JVM이 호스트 RAM 기준으로 힙을 잡는다 - 명시적으로 고정
+      # (1GB VM이면 .env에서 JAVA_TOOL_OPTIONS=-Xmx384m 정도로 낮출 것)
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--Xmx768m}
+    # 8080은 밖으로 열지 않는다 - caddy를 거쳐서만 접속 (RateLimitFilter가 caddy의 X-Forwarded-For를 믿기 때문)
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?deploy/.env에 DOMAIN을 설정하세요}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Let's Encrypt 인증서 보관 - 지우면 재발급 요청이 반복되어 발급 횟수 제한에 걸릴 수 있다
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:

@@ -208,6 +208,64 @@ Node 버전은 `pom.xml`(frontend-maven-plugin), CI, `frontend/package.json`의 
 Vite 8(rolldown)은 **Node `^20.19.0 || >=22.12.0`** 이 필요하고, 낮으면 리눅스에서 npm이 네이티브 바이너리를 조용히 건너뛰어
 `Cannot find native binding` 으로 빌드가 실패한다 (Windows에서는 우연히 되기도 해서 놓치기 쉽다).
 
+## 5-6. 0원 배포 (Oracle Cloud Always Free + Docker Compose)
+
+Railway는 무료 플랜이 없고, Render 무료는 15분 미사용 시 잠들고(Spring 기동 20초+) 무료 Postgres가 30일 뒤 만료된다.
+비용 0원으로 계속 켜두려면 **Oracle Cloud Always Free VM 한 대에 앱 + PostgreSQL + Caddy(HTTPS)를 같이 띄운다** - `deploy/` 폴더.
+
+| 구성 | 내용 |
+|---|---|
+| `deploy/docker-compose.yml` | `db`(postgres:17) + `app`(backend/Dockerfile 빌드) + `caddy`(80/443, Let's Encrypt 자동) |
+| `deploy/Caddyfile` | `DOMAIN` → `app:8080` 리버스 프록시. HTTP는 HTTPS로 자동 리다이렉트 |
+| `deploy/.env.example` | 비밀값 템플릿 - `.env`로 복사해서 채움 (git 제외) |
+| `deploy/server-setup.sh` | 새 VM에서 1회: 스왑 2GB, Docker 설치, 80/443 iptables 열기 |
+| `deploy/backup-db.sh` | `pg_dump` → `deploy/backups/`, 7일 보관 (cron으로 매일) |
+
+DB와 8080 포트는 밖으로 열지 않는다. 앱에 들어오는 요청은 모두 Caddy(도커 내부 172.x = 기본 신뢰 프록시)를 거치므로
+`X-Forwarded-*` 설정을 따로 할 필요가 없다.
+
+**1. VM 만들기** (Oracle Cloud 가입 시 카드 인증만 하고 과금 없음 - Always Free 표시가 있는 것만 고를 것)
+- Compute → Instances → Create: 이미지 **Ubuntu 24.04**, Shape **VM.Standard.A1.Flex (Ampere ARM) 2 OCPU / 12GB** 정도
+  (무료 한도 총 4 OCPU / 24GB). 이미지는 ARM(arm64)에서도 그대로 빌드된다.
+- A1이 "Out of capacity"로 안 만들어지면 다른 가용 도메인으로 다시 시도하거나, `VM.Standard.E2.1.Micro`(1GB)로 만들고
+  `.env`에 `JAVA_TOOL_OPTIONS=-Xmx384m`. (1GB에서는 빌드가 느리다 - 스왑 필수)
+- SSH 키 다운로드, 공인 IP 확인.
+- VCN → Security List → Ingress Rules에 **TCP 80, 443** (Source `0.0.0.0/0`) 추가. (OS 방화벽은 setup 스크립트가 연다)
+
+**2. 도메인** - https://www.duckdns.org 로그인 → 서브도메인(예: `cleaneat`) 만들고 IP 칸에 VM 공인 IP 입력.
+HTTPS 인증서 발급에 도메인이 필요하다 (카메라 바코드 스캔·PWA는 HTTPS에서만 동작).
+
+**3. 서버 세팅 & 실행**
+```bash
+ssh -i <키파일> ubuntu@<공인IP>
+git clone https://github.com/<계정>/<저장소>.git CleanEat   # 비공개 저장소면 deploy key 또는 토큰
+cd CleanEat
+bash deploy/server-setup.sh          # 끝나면 exit 후 재접속 (docker 그룹 적용)
+cd CleanEat/deploy
+cp .env.example .env && nano .env    # DOMAIN, 비밀번호, JWT, 토스, SMTP 채우기
+docker compose up -d --build         # 첫 빌드 수 분 (maven + npm)
+docker compose logs -f app           # "Started CleanEatApplication" 확인
+```
+`https://<도메인>/actuator/health` → `{"status":"UP"...}`. 인증서는 Caddy가 첫 접속 전에 자동 발급한다
+(실패하면 `docker compose logs caddy` - 대부분 80번 포트가 막혔거나 DuckDNS IP가 틀린 경우).
+
+**4. 관리자 지정** - 사이트에서 본인 계정으로 가입 → `.env`에 `ADMIN_USERNAMES=<아이디>` → `docker compose up -d`.
+(먼저 넣어두면 그 아이디로 아무나 먼저 가입해서 관리자가 될 수 있다)
+
+**5. 업데이트 배포**
+```bash
+cd ~/CleanEat && git pull && cd deploy && docker compose up -d --build
+docker image prune -f   # 이전 이미지 정리 (디스크 절약)
+```
+
+**6. 백업** - `crontab -e`에 `0 4 * * * bash /home/ubuntu/CleanEat/deploy/backup-db.sh >> /home/ubuntu/backup.log 2>&1`.
+백업 파일은 같은 VM에 있으므로 가끔 `scp`로 PC에 내려받아 둘 것. 복구 방법은 스크립트 주석 참고.
+
+주의
+- Oracle은 Always Free 인스턴스라도 **7일간 CPU/네트워크/메모리 사용률이 매우 낮으면 유휴로 보고 회수**할 수 있다
+  (유료 계정 전환 시 해당 없음). 포트폴리오용이면 가끔 접속해서 상태를 확인할 것.
+- 로컬 검증: `deploy/.env`에 `DOMAIN=localhost`로 두고 `docker compose up -d --build` → `https://localhost` (Caddy 자체 인증서라 브라우저 경고는 정상).
+
 ## 6. 최종 체크리스트
 
 - [ ] 로컬에서 `mvn spring-boot:run` 후 브라우저로 6가지 기능 전부 수동 확인

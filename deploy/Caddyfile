@@ -1,0 +1,6 @@
+# DOMAIN(예: cleaneat.duckdns.org)으로 Let's Encrypt 인증서를 자동 발급/갱신하고 app으로 넘긴다.
+# X-Forwarded-For / X-Forwarded-Proto는 Caddy가 기본으로 붙인다 (prod의 forward-headers-strategy: native가 읽음).
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:8080
+}
