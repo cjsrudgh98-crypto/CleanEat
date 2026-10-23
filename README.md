@@ -18,15 +18,15 @@
 
 <br />
 
-<a href="https://github.com/cjsrudgh98-crypto/CleanEat/raw/main/docs/portfolio/CleanEat-portfolio.pdf"><img src="https://img.shields.io/badge/📄_포트폴리오_PDF-다운로드-16a36a?style=for-the-badge" alt="포트폴리오 PDF 다운로드" /></a>
-<a href="docs/demo/CleanEat-demo.mp4"><img src="https://img.shields.io/badge/▶_시연_영상-1분_19초-111827?style=for-the-badge" alt="시연 영상 보기" /></a>
+<a href="https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/portfolio/CleanEat-portfolio.pdf"><img src="https://img.shields.io/badge/📄_포트폴리오_PDF-바로_보기-16a36a?style=for-the-badge" alt="포트폴리오 PDF 보기" /></a>
+<a href="https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/demo/CleanEat-demo.mp4"><img src="https://img.shields.io/badge/▶_시연_영상-1분_19초-111827?style=for-the-badge" alt="시연 영상 보기" /></a>
 
 </div>
 
 <p align="center">
   <img src="docs/demo/CleanEat-demo.gif" width="860" alt="CleanEat 시연 - 바코드 스캔, 알레르기 경고, 대안 추천, 쇼핑, 부분 취소, 반품, 관리자 매출 통계" />
   <br />
-  <sub>▲ 실제 서비스 화면 시연 (1.6배속) · 원본 영상: <a href="docs/demo/CleanEat-demo.mp4">CleanEat-demo.mp4</a></sub>
+  <sub>▲ 실제 서비스 화면 시연 (1.6배속) · 원본 영상: <a href="https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/demo/CleanEat-demo.mp4">CleanEat-demo.mp4</a></sub>
 </p>
 
 ---
@@ -52,8 +52,8 @@
 
 | | |
 |---|---|
-| ▶ **시연 영상** | [CleanEat-demo.mp4](docs/demo/CleanEat-demo.mp4) (1분 19초, 1280×720). 자막으로 단계를 안내하므로 소리 없이 볼 수 있습니다. |
-| 📄 **포트폴리오 PDF** | [CleanEat-portfolio.pdf](https://github.com/cjsrudgh98-crypto/CleanEat/raw/main/docs/portfolio/CleanEat-portfolio.pdf) (A4 8쪽): 개요 · 화면 · 시스템 구조 · 기술적 도전과 해결 8가지 · 테스트/CI |
+| ▶ **시연 영상** | [CleanEat-demo.mp4](https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/demo/CleanEat-demo.mp4) (1분 19초, 1280×720). 자막으로 단계를 안내하므로 소리 없이 볼 수 있습니다. |
+| 📄 **포트폴리오 PDF** | [CleanEat-portfolio.pdf](https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/portfolio/CleanEat-portfolio.pdf) (A4 8쪽): 개요 · 화면 · 시스템 구조 · 기술적 도전과 해결 8가지 · 테스트/CI |
 
 **영상 순서**
 
