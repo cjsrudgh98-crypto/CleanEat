@@ -18,6 +18,7 @@
 
 <br />
 
+<a href="https://3-39-171-221.sslip.io"><img src="https://img.shields.io/badge/🌐_라이브_데모-바로_접속-2563eb?style=for-the-badge" alt="라이브 데모 접속" /></a>
 <a href="https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/portfolio/CleanEat-portfolio.pdf"><img src="https://img.shields.io/badge/📄_포트폴리오_PDF-바로_보기-16a36a?style=for-the-badge" alt="포트폴리오 PDF 보기" /></a>
 <a href="https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/demo/CleanEat-demo.mp4"><img src="https://img.shields.io/badge/▶_시연_영상-1분_19초-111827?style=for-the-badge" alt="시연 영상 보기" /></a>
 
@@ -52,6 +53,7 @@
 
 | | |
 |---|---|
+| 🌐 **라이브 데모** | <https://3-39-171-221.sslip.io> (AWS EC2 · Docker Compose · HTTPS). 데모 서버라 회원가입 인증번호가 메일 대신 화면에 표시되고, 결제는 토스 테스트 키로 처리되어 실제 돈이 나가지 않습니다. |
 | ▶ **시연 영상** | [CleanEat-demo.mp4](https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/demo/CleanEat-demo.mp4) (1분 19초, 1280×720). 자막으로 단계를 안내하므로 소리 없이 볼 수 있습니다. |
 | 📄 **포트폴리오 PDF** | [CleanEat-portfolio.pdf](https://cdn.jsdelivr.net/gh/cjsrudgh98-crypto/CleanEat@main/docs/portfolio/CleanEat-portfolio.pdf) (A4 8쪽): 개요 · 화면 · 시스템 구조 · 기술적 도전과 해결 8가지 · 테스트/CI |
 

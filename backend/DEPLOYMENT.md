@@ -266,6 +266,43 @@ docker image prune -f   # 이전 이미지 정리 (디스크 절약)
   (유료 계정 전환 시 해당 없음). 포트폴리오용이면 가끔 접속해서 상태를 확인할 것.
 - 로컬 검증: `deploy/.env`에 `DOMAIN=localhost`로 두고 `docker compose up -d --build` → `https://localhost` (Caddy 자체 인증서라 브라우저 경고는 정상).
 
+## 5-7. 현재 운영 서버 (AWS EC2) - https://3-39-171-221.sslip.io
+
+Oracle Cloud 대신 기존 AWS EC2 한 대에 5-6과 같은 `deploy/` 구성(app + postgres + caddy)으로 올려 두었다.
+
+| 항목 | 값 |
+|---|---|
+| 서버 | EC2 `t3.micro` (RAM 1GB + 스왑 2GB), ap-northeast-2, Amazon Linux 2023, 탄력적 IP `3.39.171.221` |
+| 도메인 | `3-39-171-221.sslip.io` - sslip.io는 IP가 들어간 이름을 그 IP로 풀어 주므로 가입·DNS 설정 없이 Let's Encrypt 인증서를 받을 수 있다 |
+| 접속 | `ssh -i <키파일> ec2-user@3.39.171.221` (Amazon Linux라 사용자명이 `ubuntu`가 아니라 `ec2-user`) |
+| 위치 | 서버의 `~/cleaneat/deploy` (`docker-compose.yml`, `Caddyfile`, `backup-db.sh`, `.env`) - 저장소 전체는 clone하지 않았다 |
+| 보안 그룹 | 인바운드 TCP 22 / 80 / 443 |
+
+Amazon Linux에는 `server-setup.sh`(Ubuntu/Oracle용)를 쓰지 않고 직접 설치했다:
+```bash
+sudo dnf install -y docker && sudo systemctl enable --now docker
+sudo mkdir -p /usr/local/lib/docker/cli-plugins
+sudo curl -fsSL https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64   -o /usr/local/lib/docker/cli-plugins/docker-compose && sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+```
+
+**이미지는 PC에서 빌드해서 보낸다** - RAM 1GB에서 maven + npm 빌드는 너무 느리고 메모리가 부족하다.
+```bash
+# PC (저장소 루트, Docker Desktop 실행 중)
+docker build --platform linux/amd64 -f backend/Dockerfile -t cleaneat:latest .
+docker save cleaneat:latest | gzip -1 | ssh -i <키파일> ec2-user@3.39.171.221 'gunzip | sudo docker load'
+ssh -i <키파일> ec2-user@3.39.171.221 'cd ~/cleaneat/deploy && sudo docker compose up -d --no-build && sudo docker image prune -f'
+```
+`deploy/docker-compose.yml`이나 `Caddyfile`을 바꿨으면 먼저 `scp`로 `~/cleaneat/deploy/`에 올린다.
+
+**서버 `.env`에서 5-6과 다른 값** (DB 비밀번호와 JWT 키는 서버에서 `openssl rand`로 생성, 서버에만 있음)
+- `DOMAIN=3-39-171-221.sslip.io`
+- `JAVA_TOOL_OPTIONS=-Xmx384m` - RAM 1GB
+- `TOSS_CLIENT_KEY` / `TOSS_SECRET_KEY` - 토스 공개 문서용 테스트 키 (실결제 없음)
+- `APP_MAIL_DEV_MODE=true` - SMTP가 아직 없어서 가입 인증번호를 화면에 표시하는 데모 모드.
+  SMTP를 넣을 때는 `SPRING_MAIL_*`, `MAIL_FROM`을 추가하고 이 줄을 지운 뒤 `sudo docker compose up -d`
+
+남은 일: 관리자 지정(`ADMIN_USERNAMES`, 5-6의 4번), DB 백업 cron(5-6의 6번 - Amazon Linux 2023은 `sudo dnf install -y cronie && sudo systemctl enable --now crond` 먼저).
+
 ## 6. 최종 체크리스트
 
 - [ ] 로컬에서 `mvn spring-boot:run` 후 브라우저로 6가지 기능 전부 수동 확인
