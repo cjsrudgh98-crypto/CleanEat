@@ -301,7 +301,13 @@ ssh -i <키파일> ec2-user@3.39.171.221 'cd ~/cleaneat/deploy && sudo docker co
 - `APP_MAIL_DEV_MODE=true` - SMTP가 아직 없어서 가입 인증번호를 화면에 표시하는 데모 모드.
   SMTP를 넣을 때는 `SPRING_MAIL_*`, `MAIL_FROM`을 추가하고 이 줄을 지운 뒤 `sudo docker compose up -d`
 
-남은 일: 관리자 지정(`ADMIN_USERNAMES`, 5-6의 4번), DB 백업 cron(5-6의 6번 - Amazon Linux 2023은 `sudo dnf install -y cronie && sudo systemctl enable --now crond` 먼저).
+**DB 백업** - `cronie` 설치 후(Amazon Linux 2023에는 cron이 기본으로 없다) `ec2-user` crontab에 등록. 서버 시간대가 KST라 그대로 04시.
+```
+0 4 * * * bash /home/ec2-user/cleaneat/deploy/backup-db.sh >> /home/ec2-user/backup.log 2>&1
+```
+백업은 `~/cleaneat/deploy/backups/`에 7일치 남는다. 같은 서버에 있으므로 가끔 `scp`로 PC에 받아 둘 것.
+
+남은 일: 관리자 지정(`ADMIN_USERNAMES`, 5-6의 4번).
 
 ## 6. 최종 체크리스트
 
